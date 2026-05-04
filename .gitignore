@@ -1,0 +1,54 @@
+### Workspace-level ignores (Eclipse/STS) ###
+.metadata/
+
+### Build output (all modules) ###
+**/target/
+**/build/
+**/out/
+!**/src/main/**/target/
+!**/src/test/**/target/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### Logs / runtime ###
+**/logs/
+**/*.log
+**/*.pid
+**/*.seed
+
+### Maven wrapper binary ###
+**/.mvn/wrapper/maven-wrapper.jar
+
+### Local Spring config / secrets ###
+**/src/main/resources/application-local.properties
+**/src/main/resources/application-local.yml
+**/src/main/resources/application-local.yaml
+**/src/main/resources/application-secret.properties
+**/src/main/resources/application-secret.yml
+**/src/main/resources/application-secret.yaml
+
+### Environment files ###
+.env
+.env.*
+!.env.example
+
+### IDE settings ###
+**/.classpath
+**/.project
+**/.settings/
+**/.factorypath
+**/.springBeans
+**/.sts4-cache/
+**/.idea/
+**/*.iws
+**/*.iml
+**/*.ipr
+**/.vscode/
+
+### OS / temp files ###
+.DS_Store
+Thumbs.db
+Desktop.ini
+**/*.swp
+**/*.swo
+**/*~
