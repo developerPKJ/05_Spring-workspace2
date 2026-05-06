@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="memberMapper">
+
+	<!-- 
+		MEMBER 테이블의 각 컬럼값을
+		자바의 Member 객체의 필드값으로 옮겨주는 resultMap
+	-->
+	<resultMap id="memberResultSet" type="member">
+		<id column="USER_NO" property="userNo" />
+		<result column="USER_ID" property="userId" />
+		<result column="USER_PWD" property="userPwd" />
+		<result column="USER_NAME" property="userName" />
+		<result column="PHONE" property="phone" />
+		<result column="EMAIL" property="email" />
+		<result column="ADDRESS" property="address" />
+		<result column="ENROLL_DATE" property="enrollDate" />
+		<result column="MODIFY_DATE" property="modifyDate" />
+		<result column="STATUS" property="status" />
+	</resultMap>
+
+	<!-- 로그인용 쿼리문 -->
+	<select id="loginMember" parameterType="member" 
+							 resultMap="memberResultSet">
+		<!-- 암호화 작업 전 : 아이디, 비밀번호가 모두 일치해야 조회 -->
+		<!--  
+		SELECT * 
+		  FROM MEMBER
+		 WHERE USER_ID = #{userId}
+		   AND USER_PWD = #{userPwd}
+		   AND STATUS = 'Y'
+		-->
+		<!-- 암호화 작업 후 : 오로지 아이디로만 조회 (어차피 아이디는 unique) -->
+		SELECT *
+		  FROM MEMBER
+		 WHERE USER_ID = #{userId}
+		   AND STATUS = 'Y'
+	</select>
+	
+	<!-- 회원가입용 쿼리문 -->
+	<insert id="insertMember" parameterType="member">
+		INSERT INTO MEMBER(USER_NO
+		                 , USER_ID
+		                 , USER_PWD
+		                 , USER_NAME
+		                 , PHONE
+		                 , EMAIL
+		                 , ADDRESS)
+		            VALUES(SEQ_UNO.NEXTVAL
+		                 , #{userId}
+		                 , #{userPwd}
+		                 , #{userName}
+		                 , #{phone}
+		                 , #{email}
+		                 , #{address})
+	</insert>
+	
+	<!-- 회원 정보 변경용 쿼리문 -->
+	<update id="updateMember" parameterType="member">
+		UPDATE MEMBER
+		   SET USER_NAME = #{userName}
+		     , PHONE = #{phone}
+		     , EMAIL = #{email}
+		     , ADDRESS = #{address}
+		     , MODIFY_DATE = SYSDATE
+		 WHERE USER_ID = #{userId}
+		   AND STATUS = 'Y'
+	</update>
+
+</mapper>
+
+
+
+

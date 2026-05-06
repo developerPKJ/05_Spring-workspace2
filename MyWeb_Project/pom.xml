@@ -30,6 +30,19 @@
 		<java.version>21</java.version>
 	</properties>
 	<dependencies>
+		<!--
+			* 프로젝트 최초 생성 시 추가한 라이브러리들
+			- Spring Boot DevTools
+			- Spring Web
+			- Oracle Driver
+			- MyBatis Framework
+			+ 
+			- JSP 라이브러리
+			- JSTL 라이브러리
+			
+			* 더 필요한 것이 있다면 구현 중에
+			Add Spring Boot Starters 또는 Maven Repository 에서 더 추가해서 쓰면 됨!!
+		-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webmvc</artifactId>
@@ -63,21 +76,41 @@
 			<scope>test</scope>
 		</dependency>
 		
-		<!-- Source: https://mvnrepository.com/artifact/org.apache.tomcat.embed/tomcat-embed-jasper -->
+		<!-- JSP 를 사용하기 위한 라이브러리 -->
 		<dependency>
 		    <groupId>org.apache.tomcat.embed</groupId>
 		    <artifactId>tomcat-embed-jasper</artifactId>
 		</dependency>
 		
-		<!-- Source: https://mvnrepository.com/artifact/org.glassfish.web/jakarta.servlet.jsp.jstl -->
+		<!-- 
+			JSTL 을 사용하기 위한 라이브러리들 추가 
+			- jakarta.servlet.jsp.jstl-api
+			- jakarta.servlet.jsp.jstl	
+		-->
+		<dependency>
+		    <groupId>jakarta.servlet.jsp.jstl</groupId>
+		    <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+		</dependency>
 		<dependency>
 		    <groupId>org.glassfish.web</groupId>
 		    <artifactId>jakarta.servlet.jsp.jstl</artifactId>
 		</dependency>
-		<!-- Source: https://mvnrepository.com/artifact/jakarta.servlet.jsp.jstl/jakarta.servlet.jsp.jstl-api -->
+		
+		<!--
+			비밀번호 암호화를 위한 라이브러리 추가
+			- Spring Security
+			
+			단, Spring Security 모듈을 추가하면 기본적으로 
+			까다롭게 웹 보안 설정이 막히면서 메인페이지 진입이 불가해진다!! (설정을 풀어줘야함 - main 메소드를 포함한 클래스)
+		-->
 		<dependency>
-		    <groupId>jakarta.servlet.jsp.jstl</groupId>
-		    <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security-test</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
