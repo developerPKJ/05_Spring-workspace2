@@ -43,6 +43,17 @@
 		text-decoration : none;
 		color : white;
 	}
+
+	/* 
+		모든페이지에서 .outer 클래스는 동일한 스타일을 가짐
+		- 즉, .outer 클래스는 공통적으로 적용되는 스타일이므로 menubar.jsp 에 작성
+	*/
+	.outer {
+		width : 1000px;
+		border : 1px dotted lightgray;
+		margin : auto;
+		margin-top : 50px;
+	}
 </style>
 
 <!-- alertify 라이브러리 연동 구문 -->
@@ -173,10 +184,10 @@
 	<!-- 메뉴바 (navigator) 영역 -->
 	<div class="nav-area" align="center">
 
-		<div class="menu"><a href="">HOME</a></div>
-		<div class="menu"><a href="">NOTICE</a></div>
-		<div class="menu"><a href="">BOARD</a></div>
-		<div class="menu"><a href="">PHOTO</a></div>
+		<div class="menu"><a href="/myweb">HOME</a></div>
+		<div class="menu"><a href="/myweb/notice/list">NOTICE</a></div>
+		<div class="menu"><a href="/myweb/board">BOARD</a></div>
+		<div class="menu"><a href="/myweb/photo">PHOTO</a></div>
 
 	</div>
 

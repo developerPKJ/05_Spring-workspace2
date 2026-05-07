@@ -2,7 +2,7 @@ package com.kh.myweb;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
+//import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
 
 /*
  * * 이 프로젝트에 스프링 시큐리티 모듈을 연동하는 순간

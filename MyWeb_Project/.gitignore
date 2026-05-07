@@ -1,45 +1,20 @@
-### Build output ###
+HELP.md
 target/
-build/
-out/
+.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
-### Maven wrapper binary ###
-.mvn/wrapper/maven-wrapper.jar
-
-### Runtime / logs ###
-logs/
-*.log
-*.pid
-*.seed
-
-### Spring Boot local override files ###
-src/main/resources/application-local.properties
-src/main/resources/application-local.yml
-src/main/resources/application-local.yaml
-src/main/resources/application-secret.properties
-src/main/resources/application-secret.yml
-src/main/resources/application-secret.yaml
-
-### Environment files ###
-.env
-.env.*
-!.env.example
-
-### Eclipse / STS ###
+### STS ###
 .apt_generated
 .classpath
 .factorypath
 .project
-.settings/
+.settings
 .springBeans
-.sts4-cache/
+.sts4-cache
 
 ### IntelliJ IDEA ###
-.idea/
+.idea
 *.iws
 *.iml
 *.ipr
@@ -50,14 +25,9 @@ src/main/resources/application-secret.yaml
 /dist/
 /nbdist/
 /.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
 
 ### VS Code ###
 .vscode/
-
-### OS / editor temp files ###
-.DS_Store
-Thumbs.db
-Desktop.ini
-*.swp
-*.swo
-*~

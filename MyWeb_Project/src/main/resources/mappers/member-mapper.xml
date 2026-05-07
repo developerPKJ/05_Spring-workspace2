@@ -69,6 +69,24 @@
 		   AND STATUS = 'Y'
 	</update>
 
+	<!-- 비밀번호 변경용 쿼리문 -->
+	<update id="updatePwd" parameterType="member">
+		UPDATE MEMBER
+		   SET USER_PWD = #{userPwd}
+		     , MODIFY_DATE = SYSDATE
+		 WHERE USER_ID = #{userId}
+		   AND STATUS = 'Y'
+	</update>
+
+	<!-- 회원 탈퇴용 쿼리문 -->
+	<update id="deleteMember" parameterType="string">
+		UPDATE MEMBER
+		   SET STATUS = 'N'
+		     , MODIFY_DATE = SYSDATE
+		 WHERE USER_ID = #{userId}
+		   AND STATUS = 'Y'
+	</update>
+
 </mapper>
 
 

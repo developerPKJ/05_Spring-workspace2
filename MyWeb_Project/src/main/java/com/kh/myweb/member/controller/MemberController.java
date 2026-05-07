@@ -85,7 +85,7 @@ public class MemberController {
 		
 		// 암호화 작업 후
 		// 로그인 기능 코드 또한 암호화 작업을 감안해서 수정해줘야함!!
-		System.out.println(m);
+		// System.out.println(m);
 		// > Member m 의 userId : 사용자가 입력했던 아이디
 		//				userPwd : 사용자가 입력했던 비번 "평문"
 		
@@ -99,7 +99,7 @@ public class MemberController {
 		
 		// 2. Service 요청 후 결과 받기
 		Member loginUser = memberService.loginMember(m);
-		System.out.println(loginUser);
+		// System.out.println(loginUser);
 		// > 만약 사용자가 제대로된 아이디를 입력했다면 (유효한 회원의 경우)
 		//   SELECT * 에 의해 해당 회원의 정보가 통으로 넘어옴!!
 		// > 만약 아이디가 없는 아이디거나 유효하지 않은 회원의 경우에는
@@ -436,12 +436,97 @@ public class MemberController {
 		return mv;
 		
 	}
+
+	@PostMapping("updatePwd")
+	public String updatePwd(String userId, String userPwd, String updatePwd, HttpSession session) {
+		// 해당 회원의 아이디는 세션에서 얻어내야함!!
+
+		// 현재 로그인한 회원의 정보를 알아내는 방법
+		// 1. HttpSession 객체에서 loginUser 라는 키값으로 담긴 회원의 정보를 얻어내기
+		// String userId = ((Member)session.getAttribute("loginUser")).getUserId();
+		// System.out.println("userId : " + userId);
+
+		// 2. form안에 input type="hidden" 태그로 처음부터 아이디값을 같이 넘겨주기
+		// System.out.println("userId : " + userId);
+
+
+		// 평문 아이디, 평문 현재 비밀번호, 평문 새로운 비밀번호를 받은 상태
+		// 사용자가 입력한 평문 비밀번호와 로그인한 사용자의 암호화된 비밀번호가 동일한지 확인 필요
+		Member loginUser = (Member)session.getAttribute("loginUser");
+		if(bCryptPasswordEncoder.matches(userPwd, loginUser.getUserPwd())) {
+			// 현재 비밀번호가 일치하는 경우
+			// 새로운 비밀번호를 암호화 필요
+			String updateEncPwd = bCryptPasswordEncoder.encode(updatePwd);
+
+			// 비밀번호 변경 서비스 호출
+			// 2개 이상의 데이터를 넘길 필요가 있기 때문에, Member 객체로 가공해서 넘겨줌
+			Member m = new Member();
+			m.setUserId(userId);
+			m.setUserPwd(updateEncPwd);
+
+			int result = memberService.updatePwd(m);
+			
+			if(result > 0) {
+				// 비밀번호 변경 성공
+				// 현재 로그인한 회원의 정보가 수정되었다면
+				// > session에 담긴 회원의 정보도 수정된 정보로 덮어씌우기
+				// > 기존의 로그인용 서비스 재활용하기
+				Member updateMem = memberService.loginMember(m);
+				session.setAttribute("loginUser", updateMem);
+
+				session.setAttribute("alertMsg", "성공적으로 비밀번호가 변경되었습니다.");
+			} else {
+				// 비밀번호 변경 실패
+				session.setAttribute("alertMsg", "비밀번호 변경에 실패했습니다.");
+
+				return "common/errorPage";
+					// > 비밀번호 변경이 실패했으니 에러페이지로 포워딩
+			}
+		} else {
+			// 현재 비밀번호가 일치하지 않는 경우
+			session.setAttribute("alertMsg", "잘못된 비밀번호입니다.");
+		}
+
+		return "redirect:/member/myPage";
+			//   마이페이지로 다시 돌아가도록 url 재요청 해주기
+	}
 	
-	
-	
-	
-	
-	
+	@PostMapping("delete")
+	public String deleteMember(String userPwd, HttpSession session) {
+		// 평문 아이디, 평문 비밀번호를 받은 상태
+		// 사용자가 입력한 평문 비밀번호와 로그인한 사용자의 암호화된 비밀번호가 동일한지 확인 필요
+		Member loginUser = (Member)session.getAttribute("loginUser");
+		if(bCryptPasswordEncoder.matches(userPwd, loginUser.getUserPwd())) {
+			// 비밀번호가 일치하는 경우
+			
+			// 회원 탈퇴 서비스 호출
+			int result = memberService.deleteMember(loginUser.getUserId());
+			
+			if(result > 0) {
+				// 회원 탈퇴 성공
+				session.removeAttribute("loginUser");
+				// invalidate 방식은 세션에 loginUser 뿐만 아니라 다른 데이터들도 담겨있다면 사용할 수 없음
+				// > 다른 정보들도 다 날라가버림
+				session.setAttribute("alertMsg", "성공적으로 회원 탈퇴가 되었습니다.");
+
+				return "redirect:/";
+					// > 회원 탈퇴가 성공했으니 메인페이지로 url 재요청
+			} else {
+				// 회원 탈퇴 실패
+				session.setAttribute("alertMsg", "회원 탈퇴에 실패했습니다.");
+
+				return "common/errorPage";
+					// > 회원 탈퇴가 실패했으니 에러페이지로 포워딩
+			}
+		} else {
+			// 비밀번호가 일치하지 않는 경우
+			session.setAttribute("alertMsg", "잘못된 비밀번호입니다.");
+
+			return "redirect:/member/myPage";
+				// > 비밀번호가 일치하지 않으니 마이페이지로 url 재요청
+		}
+	}
+
 }
 
 

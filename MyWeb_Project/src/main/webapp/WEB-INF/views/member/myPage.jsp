@@ -6,12 +6,14 @@
 <meta charset="UTF-8">
 <title>Insert title here</title>
 <style>
+	/*
 	.outer {
 		width : 1000px;
 		border : 1px dotted lightgray;
 		margin : auto;
 		margin-top : 50px;
 	}
+	*/
 
 	#mypage-form table {
 		margin : auto;
@@ -104,9 +106,11 @@
 				<button type="submit"
 						class="btn btn-primary btn-sm">정보변경</button>
 				<button type="button"
-						class="btn btn-warning btn-sm">비밀번호변경</button>
+						class="btn btn-warning btn-sm"
+						data-toggle="modal" data-target="#updatePwdForm">비밀번호변경</button>
 				<button type="button"
-						class="btn btn-danger btn-sm">회원탈퇴</button>
+						class="btn btn-danger btn-sm"
+						data-toggle="modal" data-target="#deleteForm">회원탈퇴</button>
 			</div>
 
 		</form>
@@ -116,6 +120,137 @@
 	</div>
 
 	<br><br>
+	
+	<!-- 비밀번호변경과 회원탈퇴는 모달창을 이용해서 구현 -->
+	<!-- W3schools 사이트에서 모달창 예제 참고 -->
+
+	<!-- 회원탈퇴용 Modal -->
+	<div class="modal" id="deleteForm">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+			<!-- Modal Header -->
+			<div class="modal-header">
+				<h4 class="modal-title">회원 탈퇴</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+
+			<!-- Modal body -->
+			<div class="modal-body" align="center">
+
+				<b>
+						탈퇴 후 회원 정보는 복구가 불가능합니다.<br>
+						정말 탈퇴하시겠습니까? <br><br>
+				</b>
+
+				<form action="/myweb/member/delete" method="post">
+					<!-- 
+						회원 탈퇴 시 입력받아야 되는 것들
+						- 현재 비밀번호
+						> input type="hidden" 으로 아이디값도 안보이게 같이 넘겨주기
+					-->
+
+					<table>
+						<tr>
+							<th>현재 비밀번호</th>
+							<td>
+								<input type="password" name="userPwd" required>
+							</td>
+						</tr>
+					</table>
+
+					<br><br>
+
+					<div align="center">
+						<button type="submit" class="btn btn-danger btn-sm">
+							회원 탈퇴
+						</button>
+					</div>
+
+				</form>
+			</div>
+
+			</div>
+		</div>
+	</div>
+
+	<!-- 비밀번호변경용 Modal -->
+	<div class="modal" id="updatePwdForm">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+			<!-- Modal Header -->
+			<div class="modal-header">
+				<h4 class="modal-title">비밀번호 변경</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+
+			<!-- Modal body -->
+			<div class="modal-body" align="center">
+				<form action="/myweb/member/updatePwd" method="post">
+					<!-- 
+						비밀번호 변경 시 입력받아야 되는 것들
+						- 현재 비밀번호
+						- 새로운 비밀번호
+						- 새로운 비밀번호 확인
+						- 누구의 비번을 변경할건지 해당 회원의 아이디도 필요함
+						> input type="hidden" 으로 아이디값도 안보이게 같이 넘겨주기
+					-->
+
+					<input type="hidden" name="userId" value="${ sessionScope.loginUser.userId }">
+
+					<table>
+						<tr>
+							<th>현재 비밀번호</th>
+							<td>
+								<input type="password" name="userPwd" required>
+							</td>
+						</tr>
+						<tr>
+							<th>변경할 비밀번호</th>
+							<td>
+								<input type="password" name="updatePwd" required>
+							</td>
+						</tr>
+						<tr>
+							<th>비밀번호 확인</th>
+							<td>
+								<input type="password" name="checkPwd" required>
+							</td>
+						</tr>
+					</table>
+
+					<br><br>
+
+					<div align="center">
+						<button type="submit" class="btn btn-primary btn-sm"
+								onclick="return validatePwd();">
+							비밀번호 변경
+						</button>
+					</div>
+
+				</form>
+
+				<script>
+					// 변경할 비밀번호 유효성 검사용 함수
+					function validatePwd() {
+						let updatePwd = $('input[name="updatePwd"]').val();
+						let checkPwd = $('input[name="checkPwd"]').val();
+
+						// 두 값이 일치하면 기본이벤트 이용, 불일치하면 기본이벤트 제거
+						if(updatePwd != checkPwd) {
+							alertify.alert("비밀번호가 일치하지 않습니다.");
+							return false; // submit 막기
+						}
+						
+						return true; // submit 허용
+					}
+				</script>
+			</div>
+
+			</div>
+		</div>
+	</div>
 
 </body>
 </html>

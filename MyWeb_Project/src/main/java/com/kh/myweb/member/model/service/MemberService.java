@@ -60,6 +60,18 @@ public class MemberService {
 		
 		return memberDao.updateMember(sqlSession, m);
 	}
+
+	@Transactional
+	public int updatePwd(Member m) {
+		
+		return memberDao.updatePwd(sqlSession, m);
+	}
+
+	@Transactional
+	public int deleteMember(String userId) {
+		
+		return memberDao.deleteMember(sqlSession, userId);
+	}
 	
 }
 
