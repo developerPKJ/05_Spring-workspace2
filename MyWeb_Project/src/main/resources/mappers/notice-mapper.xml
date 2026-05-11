@@ -3,17 +3,20 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="noticeMapper">
-	
+
 	<!-- 
 		NOTICE 테이블로부터 조회된 내용을
 		자바의 Notice VO 객체로 옮겨 담는 역할의 ResultMap
 	-->
-	<resultMap type="notice" id="noticeResultSet">
-		<id property="noticeNo" column="NOTICE_NO" />
-		<result property="noticeTitle" column="NOTICE_TITLE" />
-		<result property="noticeWriter" column="USER_ID" />
-		<result property="count" column="COUNT" />
-		<result property="createDate" column="CREATE_DATE" />
+	<resultMap id="noticeResultSet" type="notice">
+		<id column="NOTICE_NO" property="noticeNo" />
+		<result column="NOTICE_TITLE" property="noticeTitle" />
+		<result column="USER_ID" property="noticeWriter" />
+		<result column="COUNT" property="count" />
+		<result column="CREATE_DATE" property="createDate" />
+		
+		<result column="NOTICE_CONTENT" property="noticeContent" />
+		<!-- 없는 컬럼이라면 맵핑시키지 않고 그냥 넘어간다!! -->
 	</resultMap>
 	
 	<!-- 공지사항 목록 조회용 쿼리문 -->
@@ -24,8 +27,66 @@
 		     , COUNT
 		     , CREATE_DATE
 		  FROM NOTICE N
-		  JOIN MEMBER M ON (N.NOTICE_WRITER = M.USER_NO)
-		   AND N.STATUS = 'Y'
-		ORDER BY N.NOTICE_NO DESC
+		  JOIN MEMBER ON (NOTICE_WRITER = USER_NO)
+		 WHERE N.STATUS = 'Y'
+		 ORDER BY NOTICE_NO DESC
 	</select>
+	
+	<!-- 공지사항 작성용 쿼리문 -->
+	<insert id="insertNotice" parameterType="notice">
+		INSERT INTO NOTICE(NOTICE_NO
+		                 , NOTICE_TITLE
+		                 , NOTICE_CONTENT
+		                 , NOTICE_WRITER)
+		            VALUES(SEQ_NNO.NEXTVAL
+		                 , #{noticeTitle}
+		                 , #{noticeContent}
+		                 , #{noticeWriter})
+	</insert>
+	
+	<!-- 공지사항 조회수 증가용 쿼리문 -->
+	<update id="increaseCount" parameterType="_int">
+		UPDATE NOTICE
+		   SET COUNT = COUNT + 1
+		 WHERE NOTICE_NO = #{noticeNo}
+		   AND STATUS = 'Y'
+	</update>
+	
+	<!-- 공지사항 상세조회용 쿼리문 -->
+	<select id="selectNotice" parameterType="_int" resultMap="noticeResultSet">
+		SELECT NOTICE_NO
+		     , NOTICE_TITLE
+		     , NOTICE_CONTENT
+		     , USER_ID
+		     , CREATE_DATE
+		  FROM NOTICE N
+		  JOIN MEMBER ON (NOTICE_WRITER = USER_NO)
+		 WHERE NOTICE_NO = #{noticeNo}
+		   AND N.STATUS = 'Y'
+	</select>
+	
+	<!-- 공지사항 수정용 쿼리문 -->
+	<update id="updateNotice" parameterType="notice">
+		UPDATE NOTICE
+		   SET NOTICE_TITLE = #{noticeTitle}
+		     , NOTICE_CONTENT = #{noticeContent}
+		 WHERE NOTICE_NO = #{noticeNo}
+		   AND STATUS = 'Y'
+	</update>
+	
+	<!-- 공지사항 삭제용 쿼리문 -->
+	<update id="deleteNotice" parameterType="_int">
+		UPDATE NOTICE
+		   SET STATUS = 'N'
+		 WHERE NOTICE_NO = #{noticeNo}
+		   AND STATUS = 'Y'
+	</update>
+	
 </mapper>
+
+
+
+
+
+
+

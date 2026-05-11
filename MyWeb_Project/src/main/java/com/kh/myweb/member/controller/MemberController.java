@@ -436,97 +436,125 @@ public class MemberController {
 		return mv;
 		
 	}
-
+	
 	@PostMapping("updatePwd")
 	public String updatePwd(String userId, String userPwd, String updatePwd, HttpSession session) {
-		// 해당 회원의 아이디는 세션에서 얻어내야함!!
-
-		// 현재 로그인한 회원의 정보를 알아내는 방법
-		// 1. HttpSession 객체에서 loginUser 라는 키값으로 담긴 회원의 정보를 얻어내기
-		// String userId = ((Member)session.getAttribute("loginUser")).getUserId();
-		// System.out.println("userId : " + userId);
-
-		// 2. form안에 input type="hidden" 태그로 처음부터 아이디값을 같이 넘겨주기
-		// System.out.println("userId : " + userId);
-
-
-		// 평문 아이디, 평문 현재 비밀번호, 평문 새로운 비밀번호를 받은 상태
-		// 사용자가 입력한 평문 비밀번호와 로그인한 사용자의 암호화된 비밀번호가 동일한지 확인 필요
-		Member loginUser = (Member)session.getAttribute("loginUser");
+		
+		// System.out.println(userPwd);
+		// System.out.println(updatePwd);
+		
+		// > 쿼리문을 미리 짜봤더니 
+		//   해당 회원(== 비번을 바꾸고자 하는 회원 == 현재 로그인한 회원) 의 아이디도 필요함!!
+		
+		// * 현재 로그인한 회원의 정보를 알아내는 방법
+		// 1. HttpSession 객체로부터 꺼내오는 방법
+		// String userId = ((Member)(session.getAttribute("loginUser"))).getUserId();
+		// System.out.println(userId);
+		
+		// 2. form 태그 내부에서 <input type="hidden"> 을 통해 로그인한 회원의 정보를 넘기는 방법
+		// System.out.println(userId);
+		
+		// > 평문 아이디, 평문 현재의 비밀번호, 평문 바꿀 비밀번호
+		
+		// 우선 사용자가 입력한 평문 현재의 비밀번호와 
+		// 세션에 담겨있는 현재 로그인한 사용자의 암호화된 비밀번호가 맞아 떨어지는지 대조
+		Member loginUser = (Member)(session.getAttribute("loginUser"));
+		
 		if(bCryptPasswordEncoder.matches(userPwd, loginUser.getUserPwd())) {
-			// 현재 비밀번호가 일치하는 경우
-			// 새로운 비밀번호를 암호화 필요
+			// > 평문과 암호문 비밀번호가 맞아 떨어질 경우 
+			
+			// 비밀번호 변경 요청 서비스 호출 후 결과 받기
+			// > 변경할 비밀번호 또한 암호문 형태로 변경해야한다!!
 			String updateEncPwd = bCryptPasswordEncoder.encode(updatePwd);
-
-			// 비밀번호 변경 서비스 호출
-			// 2개 이상의 데이터를 넘길 필요가 있기 때문에, Member 객체로 가공해서 넘겨줌
+			
+			// 아이디와 변경할 비밀번호의 암호문을 넘기면서 서비스 호출 및 결과 받기
+			// > 두 개 이상의 값을 한번에 넘길 경우에는 무조건 VO 등으로 가공해서 한번에 넘긴다!!
 			Member m = new Member();
 			m.setUserId(userId);
 			m.setUserPwd(updateEncPwd);
-
+			
 			int result = memberService.updatePwd(m);
 			
-			if(result > 0) {
-				// 비밀번호 변경 성공
-				// 현재 로그인한 회원의 정보가 수정되었다면
-				// > session에 담긴 회원의 정보도 수정된 정보로 덮어씌우기
+			// 처리된 결과에 따라 사용자가 보게 될 응답페이지를 지정
+			if(result > 0) { 
+				// > 비밀번호 변경 성공
+				
+				// 현재 로그인한 회원의 정보가 조금이라도 변경되었다면 
+				// 무조건 그 갱신된 정보를 다시 불러와서 세션에 덮어씌워야함!!
 				// > 기존의 로그인용 서비스 재활용하기
 				Member updateMem = memberService.loginMember(m);
+				
 				session.setAttribute("loginUser", updateMem);
-
+				// > 동일한 키값으로 한번 더 추가를 하면 밸류가 덮어씌워짐!!
+				
+				// 비밀번호가 잘 변경되었음을 1회성 알림 문구로 담아줄 것
 				session.setAttribute("alertMsg", "성공적으로 비밀번호가 변경되었습니다.");
+				
 			} else {
-				// 비밀번호 변경 실패
+				// > 비밀번호 변경 실패
+				
+				// 1회성 알림문구를 담기
 				session.setAttribute("alertMsg", "비밀번호 변경에 실패했습니다.");
-
-				return "common/errorPage";
-					// > 비밀번호 변경이 실패했으니 에러페이지로 포워딩
 			}
+			
 		} else {
-			// 현재 비밀번호가 일치하지 않는 경우
-			session.setAttribute("alertMsg", "잘못된 비밀번호입니다.");
+			// > 평문과 암호문 비밀번호가 맞아 떨어지지 않을 경우
+			//   (사용자가 현재 비밀번호를 잘못 입력한 경우)
+			
+			// 1회성 알림 문구로 잘못입력했다고 알려주기
+			session.setAttribute("alertMsg", "잘못된 비밀번호입니다. 다시 입력해주세요.");
 		}
-
+		
+		// 뭐가 되었든 간에 마이페이지로 url 재요청
 		return "redirect:/member/myPage";
-			//   마이페이지로 다시 돌아가도록 url 재요청 해주기
 	}
 	
 	@PostMapping("delete")
-	public String deleteMember(String userPwd, HttpSession session) {
-		// 평문 아이디, 평문 비밀번호를 받은 상태
-		// 사용자가 입력한 평문 비밀번호와 로그인한 사용자의 암호화된 비밀번호가 동일한지 확인 필요
-		Member loginUser = (Member)session.getAttribute("loginUser");
+	public String deleteMember(String userPwd, HttpSession session, Model model) {
+		
+		// 우선 사용자가 입력한 평문 비밀번호와 세션에 담겨있는 암호화된 기존의 비밀번호를 대조하기
+		Member loginUser = (Member)(session.getAttribute("loginUser"));
+		
 		if(bCryptPasswordEncoder.matches(userPwd, loginUser.getUserPwd())) {
-			// 비밀번호가 일치하는 경우
+			// > 평문과 암호문 비밀번호가 맞아 떨어질 경우
 			
-			// 회원 탈퇴 서비스 호출
+			// 회원 탈퇴 서비스 요청 후 결과 받기
 			int result = memberService.deleteMember(loginUser.getUserId());
 			
-			if(result > 0) {
-				// 회원 탈퇴 성공
+			// 탈퇴 처리 결과에 따른 응답 페이지 지정
+			if(result > 0) { 
+				// > 탈퇴 성공
+				
+				// 로그아웃 처리 후 일회성 알림 문구를 담고 메인페이지로 url 재요청
 				session.removeAttribute("loginUser");
-				// invalidate 방식은 세션에 loginUser 뿐만 아니라 다른 데이터들도 담겨있다면 사용할 수 없음
-				// > 다른 정보들도 다 날라가버림
-				session.setAttribute("alertMsg", "성공적으로 회원 탈퇴가 되었습니다.");
-
+				
+				session.setAttribute("alertMsg", "성공적으로 회원 탈퇴 처리 되었습니다. 그동안 이용해 주셔서 감사합니다.");
+				
 				return "redirect:/";
-					// > 회원 탈퇴가 성공했으니 메인페이지로 url 재요청
+				
 			} else {
-				// 회원 탈퇴 실패
-				session.setAttribute("alertMsg", "회원 탈퇴에 실패했습니다.");
-
+				// > 탈퇴 실패
+				
+				// 에러문구를 담아서 에러페이지로 포워딩
+				model.addAttribute("errorMsg", "회원 탈퇴에 실패했습니다.");
+				
 				return "common/errorPage";
-					// > 회원 탈퇴가 실패했으니 에러페이지로 포워딩
 			}
+			
 		} else {
-			// 비밀번호가 일치하지 않는 경우
-			session.setAttribute("alertMsg", "잘못된 비밀번호입니다.");
-
+			// > 평문과 암호문 비밀번호가 다를 경우
+			//   (현재 비밀번호를 잘못 입력한 경우)
+			
+			// 1회성 알림 문구로 잘못 입력했음을 알려주고, 마이페이지로 url 재요청
+			session.setAttribute("alertMsg", "잘못된 비밀번호입니다. 다시 입력해주세요.");
+			
 			return "redirect:/member/myPage";
-				// > 비밀번호가 일치하지 않으니 마이페이지로 url 재요청
 		}
+		
 	}
-
+	
+	
+	
 }
 
 

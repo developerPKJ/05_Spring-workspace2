@@ -44,9 +44,10 @@
 		color : white;
 	}
 
-	/* 
-		모든페이지에서 .outer 클래스는 동일한 스타일을 가짐
-		- 즉, .outer 클래스는 공통적으로 적용되는 스타일이므로 menubar.jsp 에 작성
+	/*
+		* 모든 페이지마다 .outer 에 대한 스타일은 공통스타일이기 때문에
+		  매 페이지마다 일일이 적는게 아니라
+		  매 페이지마다 include 되야하는 menubar.jsp 에 한번만 정의해두고 계속 가져다 쓰는 구조로 수정
 	*/
 	.outer {
 		width : 1000px;
@@ -186,8 +187,8 @@
 
 		<div class="menu"><a href="/myweb">HOME</a></div>
 		<div class="menu"><a href="/myweb/notice/list">NOTICE</a></div>
-		<div class="menu"><a href="/myweb/board">BOARD</a></div>
-		<div class="menu"><a href="/myweb/photo">PHOTO</a></div>
+		<div class="menu"><a href="">BOARD</a></div>
+		<div class="menu"><a href="">PHOTO</a></div>
 
 	</div>
 
