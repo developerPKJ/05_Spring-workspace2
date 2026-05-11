@@ -112,6 +112,43 @@ UPDATE NOTICE
  WHERE NOTICE_NO = ?
    AND STATUS = 'Y';
 
+-----------------------------------------------------------
+
+-- 12. 일반게시글의 총 갯수를 구하는 쿼리문
+-- > 일반게시글로 삭제되지 않은 것들만 조회해야함
+SELECT COUNT(*)
+  FROM BOARD
+ WHERE BOARD_TYPE = 1
+   AND STATUS = 'Y';
+
+-- 13. 페이징 처리가 적용된 게시글의 목록을 조회하는 쿼리문
+-- 글번호, 카테고리명, 제목, 작성자, 조회수, 작성일
+-- > 게시글을 최신순으로 정렬 후 BOARD_LIMIT만큼 게시글을 조회
+SELECT *
+FROM
+(
+   SELECT ROWNUM AS RNUM, A.*
+   FROM 
+   (
+      SELECT BOARD_NO
+         , CATEGORY_NAME AS CATEGORY
+         , BOARD_TITLE
+         , USER_ID
+         , COUNT
+         , CREATE_DATE
+      FROM BOARD B
+      JOIN CATEGORY USING (CATEGORY_NO)
+      JOIN MEMBER ON (BOARD_WRITER = USER_NO)
+      WHERE BOARD_TYPE = 1
+         AND B.STATUS = 'Y'
+      ORDER BY BOARD_NO DESC
+   ) A
+)
+WHERE RNUM BETWEEN ? AND ?;
+-- ROWNUM을 1이 아닌 다른 숫자부터 시작하게 하고 싶으면 별칭 필요
+-- > SELECT 뒤에 사용한 별칭은 WHERE 절에서 사용 불가능하기에 FROM으로 한번 더 포장
+
+
 
 
 

@@ -187,7 +187,14 @@
 
 		<div class="menu"><a href="/myweb">HOME</a></div>
 		<div class="menu"><a href="/myweb/notice/list">NOTICE</a></div>
-		<div class="menu"><a href="">BOARD</a></div>
+		<!-- <div class="menu"><a href="/myweb/board/list?cpage=1">BOARD</a></div> -->
+		<!-- 
+			일반 게시판 목록을 처음 볼때
+			쿼리스트링이 url 주소 상에 딱히 없어도 자동으로 1번 페이지로 가도록 하려면
+			Controller 메소드에서 전달값을 매개변수로 받을 때
+			@RequestParam(value="cpage", defaultValue = "1") int currentPage
+		-->
+		<div class="menu"><a href="/myweb/board/list">BOARD</a></div>
 		<div class="menu"><a href="">PHOTO</a></div>
 
 	</div>
