@@ -148,16 +148,66 @@ WHERE RNUM BETWEEN ? AND ?;
 -- ROWNUM을 1이 아닌 다른 숫자부터 시작하게 하고 싶으면 별칭 필요
 -- > SELECT 뒤에 사용한 별칭은 WHERE 절에서 사용 불가능하기에 FROM으로 한번 더 포장
 
+-- 14. 검색된 게시글의 갯수를 구하는 쿼리문
+SELECT COUNT(*)
+  FROM BOARD B
+  JOIN MEMBER ON (BOARD_WRITER = USER_NO)
+ WHERE BOARD_TYPE = 1
+   AND B.STATUS = 'Y'
+   AND (
+         (BOARD_TITLE LIKE '%' || ? || '%')
+      OR (BOARD_CONTENT LIKE '%' || ? || '%')
+      OR (USER_ID LIKE '%' || ? || '%')
+       );
 
+-- 15. 검색 결과 목록을 구하는 쿼리문
+-- 검색 결과 목록 화면은 기존의 일반게시글 목록 화면을 재활용해 포워딩
+SELECT BOARD_NO
+     , CATEGORY_NAME AS CATEGORY
+     , BOARD_TITLE
+     , USER_ID
+     , COUNT
+     , CREATE_DATE
+  FROM BOARD B
+  JOIN CATEGORY USING (CATEGORY_NO)
+  JOIN MEMBER ON (BOARD_WRITER = USER_NO)
+ WHERE BOARD_TYPE = 1
+   AND B.STATUS = 'Y'
+   AND (
+         (BOARD_TITLE LIKE '%' || ? || '%')
+      OR (BOARD_CONTENT LIKE '%' || ? || '%')
+      OR (USER_ID LIKE '%' || ? || '%')
+       )
+ ORDER BY BOARD_NO DESC;
 
-
-
-
-
-
-
-
-
-
-
-
+-- 16. 일반게시글 작성용 쿼리문
+-- 16_1. 첨부파일이 없는 경우
+-- > BOARD 테이블에 INSERT 하면 끝
+-- 16_2. 첨부파일이 있는 경우
+-- > BOARD 테이블에 INSERT 후 ATTACHMENT 테이블에 INSERT 해야함
+INSERT INTO BOARD(BOARD_NO
+                , BOARD_TYPE
+                , CATEGORY_NO
+                , BOARD_TITLE
+                , BOARD_CONTENT
+                , BOARD_WRITER)
+           VALUES(SEQ_BNO.NEXTVAL
+                 , 1  -- 일반게시글은 BOARD_TYPE이 1로 고정
+                 , ?
+                 , ?
+                 , ?
+                 , ?);
+--> 카테고리 번호, 제목, 내용은 사용자로부터 직접 받고
+--> 작성자는 현재 로그인한 회원 번호로 바로 입력
+-- 첨부파일의 경우 입력 받을 수도 있음(선택)
+INSERT INTO ATTACHMENT(FILE_NO
+                     , REF_BNO
+                     , ORIGIN_NAME
+                     , CHANGE_NAME
+                     , FILE_PATH)
+               VALUES(SEQ_FNO.NEXTVAL
+                     , ?  -- BOARD_NO (방금 INSERT한 게시글 번호)
+                     , ?  -- 원본 파일명 (사용자에게 입력받은 값)
+                     , ?  -- 변경 파일명 (서버에 업로드하면서 변경된 파일명)
+                     , ?);-- 파일 경로 (서버에 업로드하면서 결정된 경로)
+-- 전제조건 : BOARD 테이블에 게시글이 성공적으로 INSERT 되어야 ATTACHMENT 테이블에 INSERT 해야함

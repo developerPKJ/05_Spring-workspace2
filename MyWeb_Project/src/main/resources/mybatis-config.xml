@@ -21,6 +21,7 @@
 		<typeAlias type="com.kh.myweb.member.model.vo.Member" alias="member" />	
 		<typeAlias type="com.kh.myweb.notice.model.vo.Notice" alias="notice" />
 		<typeAlias type="com.kh.myweb.board.model.vo.Board" alias="board" />
+		<typeAlias type="com.kh.myweb.board.model.vo.Attachment" alias="attachment" />
 	</typeAliases>
 	
 	<!-- 

@@ -66,4 +66,104 @@
        AND B.STATUS = 'Y'
      ORDER BY BOARD_NO DESC
   </select>
+
+  <!-- 
+    MyBatis의 동적 SQL(쿼리문) 이용
+    검색 조건이 있을 때와 없을 때의 쿼리문이 달라지는 경우
+     - 검색 조건이 없는 경우 : 전체 게시글 목록 조회
+     - 검색 조건이 있는 경우 : 검색 조건에 맞는 게시글 목록 조회
+  -->
+  <!-- 검색 결과의 갯수를 세는 쿼리문 -->
+  <select id="selectSearchCount" parameterType="hashmap" resultType="_int">
+    SELECT COUNT(*)
+    FROM BOARD B
+    JOIN MEMBER ON (BOARD_WRITER = USER_NO)
+  WHERE BOARD_TYPE = 1
+    AND B.STATUS = 'Y'
+    <if test="keyword != null and keyword.trim() != ''">
+      AND (
+          <choose>
+            <when test="condition == 'title'">
+              BOARD_TITLE 
+            </when>
+            <when test="condition == 'content'">
+              BOARD_CONTENT 
+            </when>
+            <when test="condition == 'writer'">
+              USER_ID 
+            </when>
+            <otherwise>
+              BOARD_TITLE
+            </otherwise>
+          </choose>
+          LIKE '%' || #{keyword} || '%'
+          )
+    </if>
+  </select>
+
+  <!-- 실제 검색 결과를 조회해주는 쿼리문(rowbounds 이용했음) -->
+  <select id="searchBoardList" parameterType="hashmap" resultType="hashmap"
+          resultMap="boardResultMap">
+    SELECT BOARD_NO
+         , CATEGORY_NAME AS CATEGORY
+         , BOARD_TITLE
+         , USER_ID
+         , COUNT
+         , CREATE_DATE
+      FROM BOARD B
+      JOIN CATEGORY USING (CATEGORY_NO)
+      JOIN MEMBER ON (BOARD_WRITER = USER_NO)
+     WHERE BOARD_TYPE = 1
+       AND B.STATUS = 'Y'
+       <if test="keyword != null and keyword.trim() != ''">
+        AND (
+            <choose>
+              <when test="condition == 'title'">
+                BOARD_TITLE 
+              </when>
+              <when test="condition == 'content'">
+                BOARD_CONTENT 
+              </when>
+              <when test="condition == 'writer'">
+                USER_ID 
+              </when>
+              <otherwise>
+                BOARD_TITLE
+              </otherwise>
+            </choose>
+            LIKE '%' || #{keyword} || '%'
+            )
+       </if>
+     ORDER BY BOARD_NO DESC
+  </select>
+
+  <!-- 일게시글 등록용 쿼리문(첨부파일 여부 무관) -->
+  <insert id="insertBoard" parameterType="board">
+    INSERT INTO BOARD(BOARD_NO
+                    , BOARD_TYPE
+                    , CATEGORY_NO
+                    , BOARD_TITLE
+                    , BOARD_CONTENT
+                    , BOARD_WRITER)
+                VALUES(SEQ_BNO.NEXTVAL
+                    , 1
+                    , #{category}
+                    , #{boardTitle}
+                    , #{boardContent}
+                    , #{boardWriter})
+  </insert>
+
+  <!-- 첨부파일 등록용 쿼리문(선택적 실행) -->
+  <insert id="insertAttachment" parameterType="attachment">
+    INSERT INTO ATTACHMENT(FILE_NO
+                     , REF_BNO
+                     , ORIGIN_NAME
+                     , CHANGE_NAME
+                     , FILE_PATH)
+               VALUES(SEQ_FNO.NEXTVAL
+                     , SEQ_BNO.CURRVAL
+                     , #{originName}
+                     , #{changeName}  
+                     , #{filePath})
+  </insert>
 </mapper>

@@ -7,6 +7,7 @@ import org.apache.ibatis.session.RowBounds;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.kh.myweb.board.model.vo.Attachment;
 import com.kh.myweb.board.model.vo.Board;
 import com.kh.myweb.common.model.vo.PageInfo;
 
@@ -51,5 +52,26 @@ public class BoardDao {
 		 * >> RowBounds의 경우 전체를 조회하기 때문에, 데이터가 많으면 성능 저하가 발생할 수 있음
 		 * >> 실무에서는 사용하지 않음
 		 * */
+	}
+	
+	public int selectSearchCount(SqlSessionTemplate sqlSession, HashMap<String, String> map) {
+		return sqlSession.selectOne("boardMapper.selectSearchCount", map);
+	}
+	
+	public ArrayList<Board> searchBoardList(SqlSessionTemplate sqlSession, HashMap<String, String> map, PageInfo pi) {
+		int limit = pi.getBoardLimit();
+		int offset = (pi.getCurrentPage() - 1) * limit;
+		
+		RowBounds rowBounds = new RowBounds(offset, limit);
+		
+		return (ArrayList)sqlSession.selectList("boardMapper.searchBoardList", map, rowBounds);
+	}
+	
+	public int insertBoard(SqlSessionTemplate sqlSession, Board b) {
+		return sqlSession.insert("boardMapper.insertBoard", b);
+	}
+	
+	public int insertAttachment(SqlSessionTemplate sqlSession, Attachment at) {
+		return sqlSession.insert("boardMapper.insertAttachment", at);
 	}
 }
