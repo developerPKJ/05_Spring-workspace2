@@ -5,15 +5,36 @@
   
 <mapper namespace="boardMapper">
 
+  <!-- 
+    CATEGORY 테이블로부터 조회된 result set 을
+    자바의 Category VO 객체로 가공해주는 resultMap
+  -->
+  <resultMap id="categoryResultSet" type="category">
+    <id column="CATEGORY_NO" property="categoryNo" />
+    <result column="CATEGORY_NAME" property="categoryName" />
+  </resultMap>
+
+  <!-- 
+    ATTACHMENT 테이블로부터 조회된 result set 을
+    자바의 Attachment VO 객체로 가공해주는 resultMap
+  -->
+  <resultMap id="attachmentResultSet" type="attachment">
+    <id column="FILE_NO" property="fileNo" />
+    <result column="ORIGIN_NAME" property="originName" />
+    <result column="CHANGE_NAME" property="changeName" />
+    <result column="FILE_PATH" property="filePath" />
+  </resultMap>
+
   <!-- BOARD 테이블로부터 조회된 result set을
        자바의 Board VO 객체로 가공해주는 resultMap -->
-  <resultMap id="boardResultMap" type="board">
+  <resultMap id="boardResultSet" type="board">
     <id column="BOARD_NO" property="boardNo" />
     <result column="CATEGORY" property="category" />
     <result column="BOARD_TITLE" property="boardTitle" />
     <result column="USER_ID" property="boardWriter" />
     <result column="COUNT" property="count" />
     <result column="CREATE_DATE" property="createDate" />
+    <result column="BOARD_CONTENT" property="boardContent" />
   </resultMap>
 
   <!-- 게시글의 총 갯수를 구하는 쿼리문 -->
@@ -25,8 +46,8 @@
   </select>
 
   <!-- 페이징처리가 적용된 게시글의 목록을 조회하는 쿼리문 -->
-  <select id="selectBoardList" resultType="hashmap"
-          resultMap="boardResultMap">
+  	<select id="selectBoardList" resultType="hashmap"
+  			resultMap="boardResultSet">
     SELECT *
     FROM
     (
@@ -51,8 +72,8 @@
   </select>
 
   <!-- RowBounds를 이용한 페이징 처리 -->
-  <select id="selectBoardList2" resultType="hashmap"
-          resultMap="boardResultMap">
+  	<select id="selectBoardList2" resultType="hashmap"
+  			resultMap="boardResultSet">
     SELECT BOARD_NO
          , CATEGORY_NAME AS CATEGORY
          , BOARD_TITLE
@@ -102,8 +123,8 @@
   </select>
 
   <!-- 실제 검색 결과를 조회해주는 쿼리문(rowbounds 이용했음) -->
-  <select id="searchBoardList" parameterType="hashmap" resultType="hashmap"
-          resultMap="boardResultMap">
+  	<select id="searchBoardList" parameterType="hashmap" resultType="hashmap"
+  			resultMap="boardResultSet">
     SELECT BOARD_NO
          , CATEGORY_NAME AS CATEGORY
          , BOARD_TITLE
@@ -166,4 +187,53 @@
                      , #{changeName}  
                      , #{filePath})
   </insert>
+
+  <update id="increaseCount" parameterType="_int">
+    UPDATE BOARD
+       SET COUNT = COUNT + 1
+     WHERE BOARD_NO = #{boardNo}
+       AND STATUS = 'Y'
+  </update>
+
+  <!-- 일반게시글 상세조회용 쿼리문 -->
+	<select id="selectBoard" parameterType="_int"
+							 resultMap="boardResultSet">
+		SELECT BOARD_NO
+		     , CATEGORY_NAME AS CATEGORY
+		     , BOARD_TITLE
+		     , USER_ID
+		     , CREATE_DATE
+		     , BOARD_CONTENT
+		  FROM BOARD B
+		  JOIN CATEGORY USING (CATEGORY_NO)
+		  JOIN MEMBER ON (BOARD_WRITER = USER_NO)
+		 WHERE BOARD_NO = #{boardNo}
+		   AND B.STATUS = 'Y'
+	</select>
+	
+	<!-- 첨부파일 상세조회용 쿼리문 -->
+	<select id="selectAttachment" parameterType="_int"
+								  resultMap="attachmentResultSet">
+		SELECT FILE_NO
+		     , ORIGIN_NAME
+		     , CHANGE_NAME
+		     , FILE_PATH
+		  FROM ATTACHMENT
+		 WHERE REF_BNO = #{boardNo}
+	</select>
+	
+	<!-- 일반게시글 삭제용 쿼리문 -->
+	<update id="deleteBoard" parameterType="_int">
+		UPDATE BOARD
+		   SET STATUS = 'N'
+		 WHERE BOARD_NO = #{boardNo}
+		   AND STATUS = 'Y'
+	</update>
+	
+	<!-- 카테고리 전체 조회용 쿼리문 -->
+	<select id="selectCategoryList" resultMap="categoryResultSet">
+		SELECT *
+		  FROM CATEGORY
+		 ORDER BY CATEGORY_NO ASC
+	</select>
 </mapper>

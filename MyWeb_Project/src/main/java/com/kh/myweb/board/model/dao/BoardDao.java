@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import com.kh.myweb.board.model.vo.Attachment;
 import com.kh.myweb.board.model.vo.Board;
+import com.kh.myweb.board.model.vo.Category;
 import com.kh.myweb.common.model.vo.PageInfo;
 
 @Repository
@@ -73,5 +74,29 @@ public class BoardDao {
 	
 	public int insertAttachment(SqlSessionTemplate sqlSession, Attachment at) {
 		return sqlSession.insert("boardMapper.insertAttachment", at);
+	}
+	
+	public int increaseCount(SqlSessionTemplate sqlSession, int boardNo) {
+		return sqlSession.update("boardMapper.increaseCount", boardNo);
+	}
+	
+	public Board selectBoard(SqlSessionTemplate sqlSession, int boardNo) {
+		
+		return sqlSession.selectOne("boardMapper.selectBoard", boardNo);
+	}
+	
+	public Attachment selectAttachment(SqlSessionTemplate sqlSession, int boardNo) {
+		
+		return sqlSession.selectOne("boardMapper.selectAttachment", boardNo);
+	}
+	
+	public int deleteBoard(SqlSessionTemplate sqlSession, int boardNo) {
+		
+		return sqlSession.update("boardMapper.deleteBoard", boardNo);
+	}
+	
+	public ArrayList<Category> selectCategoryList(SqlSessionTemplate sqlSession) {
+		
+		return (ArrayList)sqlSession.selectList("boardMapper.selectCategoryList");
 	}
 }

@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.kh.myweb.board.model.dao.BoardDao;
 import com.kh.myweb.board.model.vo.Attachment;
 import com.kh.myweb.board.model.vo.Board;
+import com.kh.myweb.board.model.vo.Category;
 import com.kh.myweb.common.model.vo.PageInfo;
 
 @Service
@@ -41,15 +42,55 @@ public class BoardService {
 	
 	@Transactional
 	public int insertBoard(Board b, Attachment at) {
+		
+		// 넘어온 첨부파일이 있든 없든 간에 무조건 BOARD 테이블에 먼저 INSERT 는 해야함!!
+		// > BOARD 테이블에 INSERT 구문을 실행시켜줄 DAO 만 먼저 다녀오기!!
 		int result1 = boardDao.insertBoard(sqlSession, b);
-//		> BOARD INSERT 성공 시 1, 실패 시 0 리턴
-	
-//		넘어온 첨부파일이 있을 경우 ATTACHMENT 테이블에 INSERT 작업 추가 진행
-//		> 첨부파일이 없으면 pass
+		// > BOARD 에 INSERT 가 잘 되었다면 1, 아니라면 0
+		
+		int result2 = 1;
+		// > 단, 첨부파일이 없는 경우 위의 BOARD INSERT 가 성공했을때도
+		//   result2 를 0으로 초기화 하면 최종적으로 곱셈에 의해 실패로 간주됨!!
+		// > 그래서 우리는 애초에 1로 셋팅하는것임!!
+		
+		// 넘어온 첨부파일이 있을 경우에는 ATTACHMENT 테이블에 INSERT 를 또 해야함!!
+		// > 넘어온 첨부파일이 없으면 이 과정은 패스!!
 		if(at != null) {
-			int result2 = boardDao.insertAttachment(sqlSession, at);
+			// > 넘어온 첨부파일이 있을 경우
+			
+			result2 = boardDao.insertAttachment(sqlSession, at);
+			// > ATTACHMENT 에 INSERT 가 잘 되었다면 1, 아니라면 0
 		}
 		
-//		result1, 2 모두 1이면 성공 아니면 실패
+		// result1 과 result2 가 모두 1이라면 최종 성공
+		// 하나라도 0이라면 실패
+		return result1 * result2;
+	}
+	
+	@Transactional
+	public int increaseCount(int boardNo) {
+		
+		return boardDao.increaseCount(sqlSession, boardNo);
+	}
+	
+	public Board selectBoard(int boardNo) {
+		
+		return boardDao.selectBoard(sqlSession, boardNo);
+	}
+	
+	public Attachment selectAttachment(int boardNo) {
+		
+		return boardDao.selectAttachment(sqlSession, boardNo);
+	}
+	
+	@Transactional
+	public int deleteBoard(int boardNo) {
+		
+		return boardDao.deleteBoard(sqlSession, boardNo);
+	}
+	
+	public ArrayList<Category> selectCategoryList() {
+		
+		return boardDao.selectCategoryList(sqlSession);
 	}
 }

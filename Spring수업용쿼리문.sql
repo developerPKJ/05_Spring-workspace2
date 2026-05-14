@@ -206,8 +206,51 @@ INSERT INTO ATTACHMENT(FILE_NO
                      , CHANGE_NAME
                      , FILE_PATH)
                VALUES(SEQ_FNO.NEXTVAL
-                     , ?  -- BOARD_NO (방금 INSERT한 게시글 번호)
+                     , SEQ_BNO.CURRVAL
                      , ?  -- 원본 파일명 (사용자에게 입력받은 값)
                      , ?  -- 변경 파일명 (서버에 업로드하면서 변경된 파일명)
                      , ?);-- 파일 경로 (서버에 업로드하면서 결정된 경로)
 -- 전제조건 : BOARD 테이블에 게시글이 성공적으로 INSERT 되어야 ATTACHMENT 테이블에 INSERT 해야함
+
+-- 17. 게시글 조회수 증가용 쿼리문
+UPDATE BOARD
+   SET COUNT = COUNT + 1
+ WHERE BOARD_NO = ?
+   AND STATUS = 'Y';
+
+-- 18. 게시글 상세조회용 쿼리문
+-- 카테고리명, 제목, 작성자의 아이디, 작성일, 내용을 출력해줄 예정
+-- + 눈에 보이지는 않지만 글번호도 함께 조회해올 예정!! (상세조회에서 수정, 삭제로 로직을 이어붙이려면 필요)
+SELECT BOARD_NO
+     , CATEGORY_NAME AS CATEGORY
+     , BOARD_TITLE
+     , USER_ID
+     , CREATE_DATE
+     , BOARD_CONTENT
+  FROM BOARD B
+  JOIN CATEGORY USING (CATEGORY_NO)
+  JOIN MEMBER ON (BOARD_WRITER = USER_NO)
+ WHERE BOARD_NO = ?
+   AND B.STATUS = 'Y'
+
+-- 19. 첨부파일 상세조회용 쿼리문
+SELECT FILE_NO
+     , ORIGIN_NAME
+     , CHANGE_NAME
+     , FILE_PATH
+  FROM ATTACHMENT
+ WHERE REF_BNO = ?
+
+-- 20. 게시글 삭제용 쿼리문 (UPDATE 문)   
+UPDATE BOARD
+   SET STATUS = 'N'
+ WHERE BOARD_NO = ?
+   AND STATUS = 'Y'
+
+-- 21. 게시글 수정용 쿼리문
+UPDATE BOARD
+   SET CATEGORY_NO = ?
+     , BOARD_TITLE = ?
+     , BOARD_CONTENT = ?
+ WHERE BOARD_NO = ?
+   AND STATUS = 'Y'

@@ -22,6 +22,7 @@
 		<typeAlias type="com.kh.myweb.notice.model.vo.Notice" alias="notice" />
 		<typeAlias type="com.kh.myweb.board.model.vo.Board" alias="board" />
 		<typeAlias type="com.kh.myweb.board.model.vo.Attachment" alias="attachment" />
+		<typeAlias type="com.kh.myweb.board.model.vo.Category" alias="category" />
 	</typeAliases>
 	
 	<!-- 
