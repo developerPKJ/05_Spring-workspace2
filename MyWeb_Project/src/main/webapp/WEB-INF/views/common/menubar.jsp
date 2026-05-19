@@ -198,7 +198,16 @@
 			  (cpage 값이 안넘어오면 1로 간주되게끔)
 		-->
 		<div class="menu"><a href="/myweb/board/list">BOARD</a></div> <!-- 1번 페이지로 -->
-		<div class="menu"><a href="">PHOTO</a></div>
+		<!-- 
+			* 우리는 테이블 설계 및 구축 시 일반게시글과 사진게시글을 동일한 BOARD 테이블에 저장하기로 했었음!!
+			  BOARD 테이블의 BOARD_TYPE 속성이 1 이면 일반게시글, 
+			  			   BOARD_TYPE 속성이 2 면 사진게시글로 표현하기로 약속했었음!!
+			  - 결국 동일한 테이블에 대한 CRUD 임!!
+			  - 보통은 Controller, Service, Dao, mapper 를 도메인 (테이블) 기준으로 쪼개서 작업한다.
+			  - 우리는 사진게시글에 대한 요청을 처리해주는 Controller 만 별도로 쪼개서 작업해볼것!!
+			    (com.kh.myweb.board.controller.ThumbnailController 로 생성)
+		-->
+		<div class="menu"><a href="/myweb/thumbnail/list">PHOTO</a></div>
 
 	</div>
 

@@ -8,24 +8,29 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@NoArgsConstructor // 기본생성자를 자동완성 해주는 어노테이션
-@AllArgsConstructor // 모든 필드에 대한 매개변수 생성자를 자동완성 해주는 어노테이션
-@Setter // setter 메소드들을 자동완성 해주는 어노테이션
-@Getter // getter 메소드들을 자동완성 해주는 어노테이션
-@ToString // toString 메소드를 오버라이딩 해주는 어노테이션
+@NoArgsConstructor
+@AllArgsConstructor
+@Setter
+@Getter
+@ToString
 public class Board {
-	// field
-	private int boardNo;			// BOARD_NO	NUMBER
-	private int boardType;			// BOARD_TYPE	NUMBER
-	private String category;		// CATEGORY_NO	NUMBER
-		// insert, update 시에는 카테고리 번호로, 조회시는 "공통"으로
 	
-	private String boardTitle;		// BOARD_TITLE	VARCHAR2(100 BYTE)
-	private String boardContent;	// BOARD_CONTENT	VARCHAR2(4000 BYTE)
-	private String boardWriter;		// BOARD_WRITER	NUMBER
-		// 회원은 번호로 저장, 관리자는 "admin"으로 저장
+	// 필드부 (컬럼 정보와 유사하게)
+	private int boardNo;			 //	BOARD_NO	NUMBER
+	private int boardType;			 //	BOARD_TYPE	NUMBER
+	private String category;		 //	CATEGORY_NO	NUMBER
+	// > "10" (작성 또는 수정 시 숫자 형태의 카테고리 번호) / "공통" (조회 기능 구현 시 문자열 형태의 카테고리명)
 	
-	private int count;				// COUNT	NUMBER
-	private Date createDate;		// CREATE_DATE	DATE
-	private String status;			// STATUS	VARCHAR2(1 BYTE)
+	private String boardTitle;		 //	BOARD_TITLE	VARCHAR2(100 BYTE)
+	private String boardContent;	 //	BOARD_CONTENT	VARCHAR2(4000 BYTE)
+	private String boardWriter;		 //	BOARD_WRITER	NUMBER
+	// > "1" (작성 시 회원번호) / "admin" (조회 시 회원 아이디)
+	
+	private int count;				 //	COUNT	NUMBER
+	private Date createDate;		 //	CREATE_DATE	DATE
+	private String status;			 //	STATUS	VARCHAR2(1 BYTE)
+	
+	// 사진게시글 목록 조회 시 필요한 썸네일 이미지의 경로 + 수정파일명을 담을 필드를 추가
+	private String titleImg;
+	
 }

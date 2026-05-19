@@ -53,7 +53,7 @@ public class Notice {
 	private int noticeNo;		 	 //	NOTICE_NO	NUMBER
 	private String noticeTitle;		 //	NOTICE_TITLE	VARCHAR2(100 BYTE)
 	private String noticeContent;	 //	NOTICE_CONTENT	VARCHAR2(4000 BYTE)
-	private String noticeWriter;	 //	NOTICE_WRITER	NUMBER
+	private String noticeWriter;		 //	NOTICE_WRITER	NUMBER
 	// "admin" (조회 시 아이디로) / "1" (작성 시 회원 번호로)
 	// > 문자열 형식의 아이디, 숫자 형식의 회원 번호 둘 다 받아칠 용도로 noticeWriter 필드는 String 타입으로 두기!!
 	

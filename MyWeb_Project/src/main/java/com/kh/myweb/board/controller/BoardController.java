@@ -1,10 +1,7 @@
 package com.kh.myweb.board.controller;
 
 import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,109 +33,185 @@ public class BoardController {
 	private BoardService boardService;
 	
 	@GetMapping("list")
-	public ModelAndView selectBoardList(@RequestParam(value="cpage", defaultValue = "1") int currentPage, ModelAndView mv) {
-//		System.out.println("currentPage : " + currentPage);
+	public ModelAndView selectBoardList(@RequestParam(value="cpage", defaultValue="1") int currentPage, ModelAndView mv) {
 		
-//		일반 게시판 목록 조회 기능 구현(+페이징 처리)
+		// System.out.println("현재 요청한 페이지 : " + currentPage);
 		
-//		페이징처리
-//		: 리스트 조회 시 한 페이지 당 조회돌 게시글 수 지정
+		// 일반게시판 목록 조회 기능 구현 (+ 페이징 처리)
+
+		// * 페이징 처리 (Pagination)
+		// > 리스트 조회 시 한 페이지 당 조회할 건수가 너무 많을 때
+		//   한 페이지 당 n 개씩 끊어서 보여질 수 있도록 처리해주는 효과
 		
-//		> 변수 7개 필요(4+3)
-		int listCount; 		// 총 게시글 수
-//		int currentPage;	// 현재 페이지 번호
-		int pageLimit; 		// 한 페이지 당 보여질 최대 페이지 버튼 수
-		int boardLimit; 	// 한 페이지 당 보여질 최대 게시글 수
+		// --- 페이징 처리 ---
+		// 필요한 변수는 총 7개!!
+		// > 기본적으로 구할 수 있는 4개의 변수 + 그 4개의 변수를 통해 계산해서 도출해야 하는 3개의 변수
 		
-//		int maxPage; 		// 가장 마지막 페이지 번호(총 페이지 수)
-//		int startPage; 		// 하단 페이지 버튼의 시작 번호
-//		int endPage; 		// 하단 페이지 버튼의 끝 번호
+		// 기본적으로 구할 수 있는 4개의 변수
+		int listCount; // 현재 총 게시글의 갯수 (단, 삭제되지 않은 일반게시글의 갯수)
+		// int currentPage; // 현재 사용자가 보고자 하는 페이지 (즉, 사용자가 요청한 페이지)
+		// > 이미 매개변수로 요청 시 전달값으로 받아내고 있음!!
+		int pageLimit; // 페이지 하단에 보여질 페이징바의 페이지 최대 갯수
+		int boardLimit; // 한 페이지에 보여질 게시글의 최대 갯수 (즉, 한 페이지당 몇개씩 볼거냐)
 		
+		// 위의 4개의 변수들로 계산해서 구해야 하는 3개의 변수
+		int maxPage; // 가장 마지막 페이지가 몇 번 페이지인지 (즉, 총 페이지 수)
+		int startPage; // 페이지 하단에 보여질 페이징바의 시작수
+		int endPage; // 페이지 하단에 보여질 페이징바의 끝수
+		
+		// * listCount : 총 게시글의 갯수
+		// > BOARD 테이블의 유효한 데이터의 갯수를 COUNT 함수로 세오기!!
 		listCount = boardService.selectListCount();
-//		System.out.println("listCount : " + listCount);
-//		currentPage = 매개변수로 이미 받음
+		
+		// * currentPage : 현재 사용자가 요청한 페이지
+		// > 이미 위에서 매개변수로 요청 시 전달값으로 cpage 라는 키값으로 넘겨받았음!!
+		
+		// * pageLimit : 페이지 하단에 보여질 페이징바의 페이지 최대 갯수
+		// > 한 페이지 당 페이지 목록들을 몇 개 단위씩 보여질건지 임의의 값으로 지정하기
+		//   (알고리즘 수식 계산의 편의를 위해 10으로 셋팅할 것)
 		pageLimit = 10;
+		
+		// * boardLimit : 한 페이지에 보여질 게시글의 최대 갯수
+		// > 한 페이지 당 게시글이 몇 개 씩 보여질건지 임의의 값으로 지정하기
+		//   (알고리즘 수식 계산의 편의를 위해 10으로 셋팅할 것)
 		boardLimit = 10;
+
+		// 매번 listCount, currentPage, pageLimit, boardLimit 를 통해
+		// maxPage, startPage, endPage 를 일일이 계산하는 코드를 작성하기 귀찮음!!
+		// > 마찬가지로 공통 코드 작업을 해둘 것!!
 		
-//		-- Pagination class로 이동 --
+		// Pagination 클래스를 생성하고 그 안에 getPageInfo 라는 메소드를 만들것!!
+		PageInfo pi = Pagination.getPageInfo(listCount, currentPage, 
+											 pageLimit, boardLimit);
 		
-//		매번 listCount, currentPage, pageLimit, boardLimit, maxPage, startPage, endPage 7개 변수를 계산 및 코드 작성 귀찮음
-//		> 공통 코드 작업으로 Pagination 클래스 생성하고 그 안에 getPageInfo() 메소드 만들어 리턴하는 방식 이용
+		// System.out.println(listCount);
+		// System.out.println(currentPage);
+		// System.out.println(pageLimit);
+		// System.out.println(boardLimit);
+		// System.out.println(maxPage);
+		// System.out.println(startPage);
+		// System.out.println(endPage);
 		
+		// * 페이징 처리의 원리
+		// > 게시글들을 최신순으로 정렬 후 페이지 구간별로 끊어서 조회해오는 것!!
+		//   이때 위에서 구한 7 개의 변수들이 쿼리문에 영향을 미치기 때문에,
+		//   7 개의 변수를 DAO 전달값으로 넘겨줄 것임!!
 		
-//		위의 7개 변수를 하나의 객체(VO)로 관리하기 위해 PageInfo 클래스 생성
-//		한번 만들어두면 유사한 목록 조회 기능 구현 시 재사용 가능
+		// > 위의 7 개의 변수를 각 필드로 갖고있는 VO 클래스를 하나 만들 것!!
+		// > PageInfo 라는 VO 클래스를 만들어서 각 변수를 필드로 가공해서 한번에 매개변수로 넘길 예정
+		//   (한번 만들어 두면 공지사항, 일반게시판, 사진게시판 등 목록 조회 시 
+		//    페이징 처리가 필요할 때 마다 계속 재활용해서 쓸 수 있게됨!!)
+		
 		/*
-		PageInfo pi = new PageInfo(listCount, currentPage, pageLimit, boardLimit, 
+		PageInfo pi = new PageInfo(listCount, currentPage, pageLimit, boardLimit,
 								   maxPage, startPage, endPage);
 		*/
-		PageInfo pi = Pagination.getPageInfo(listCount, currentPage, pageLimit, boardLimit);
-//		pi를 전달하면서 Service를 요청 후 리턴
+				
+		// pi 를 전달하면서 Service 로 요청 후 결과 받기
 		ArrayList<Board> list = boardService.selectBoardList(pi);
 		
 		/*
-		for (Board b : list) {
+		for(Board b : list) {
+			
 			System.out.println(b);
 		}
 		*/
+		// > 107 ~ 98 / 97 ~ 88 / 87 ~ 78 / ...
+		//   (최신 게시글 기준으로 위에서부터 10개씩)
 		
+		// 현재 사용자가 요청한 페이지 (currentPage) 에 보여질 게시글 리스트를
+		// 응답데이터로 넘기기
 		mv.addObject("list", list);
+		
+		// 또한, 요청 페이지 하단에 보여질 페이징바를 만드려면 위의 7개의 변수를 담은
+		// pi 도 응답데이터로 넘겨줘야함!!
 		mv.addObject("pi", pi);
 		
+		// 우선 응답페이지를 만들어서 띄워보기
 		mv.setViewName("board/boardListView");
+		// > /WEB-INF/views/board/boardListView.jsp
 		
 		return mv;
 	}
 	
 	@GetMapping("search")
-	public ModelAndView searchBoardList(String condition, String keyword, ModelAndView mv,
-										@RequestParam(value="cpage", defaultValue = "1") int currentPage) {
-//		System.out.println("condition : " + condition);
-//		System.out.println("keyword : " + keyword);
+	public ModelAndView searchBoardList(String condition, String keyword,
+										@RequestParam(value="cpage", defaultValue="1") int currentPage,
+										ModelAndView mv) {
 		
-//		+) paging 기능도 필요함
+		// System.out.println(condition);
+		// > 검색 조건 : "writer" / "title" / "content"
+		
+		// System.out.println(keyword);
+		// > 사용자가 입력한 검색어 : "ad" / "10" / "입니다"
+		
+		// 위의 두 값을 가지고 검색을 하되, 페이징 처리까지 해 줘야 한다!!
+		// > 기본적으로 검색 시 검색 결과들 중 1번 페이지가 보여져야함!!
+		//   또한 검색 결과들 중 n번 페이지를 사용자가 요청할 수도 있음!!
+		//   (currentPage 값도 얻어내야함, 또한 7개의 변수도 마저 셋팅해야함)
+		
+		// 우선 총 검색된 게시글의 갯수를 먼저 구할 것!!
+		// > condition, keyword 두개 다 넘기면서 쿼리문을 실행하고 와야 함!!
+		// 1. condition, keyword 라는 두개의 필드를 가진 VO 를 만들고 객체로 만들어서 넘기기
+		// 2. condition, keyword 라는 값을 HashMap 에 담아서 넘기기
+		
+		// > HashMap 이용해보기!!
 		HashMap<String, String> map = new HashMap<>();
 		map.put("condition", condition);
 		map.put("keyword", keyword);
 		
 		int searchCount = boardService.selectSearchCount(map);
-//		System.out.println("searchCount : " + searchCount);
-//		System.out.println("currentPage : " + currentPage);
+		
+		// int currentPage;
 		
 		int pageLimit = 10;
 		int boardLimit = 10;
 		
-		PageInfo pi = Pagination.getPageInfo(searchCount, currentPage, pageLimit, boardLimit);
+		// System.out.println(searchCount);
+		// System.out.println(currentPage);
 		
-//		HashMap과 PageInfo 둘다 넘겨서 검색 조건과 페이징 처리 모두 적용된 게시글 목록 조회
+		// 위의 searchCount, currentPage, pageLimit, boardLimit 를 가지고
+		// maxPage, startPage, endPage 를 계산해서 구해야함!!
+		// > 그리고 이걸 모두 PageInfo 로 한번에 가공해야함!!
+		PageInfo pi = Pagination.getPageInfo(searchCount, currentPage, 
+											 pageLimit, boardLimit);
+		
+		// 위의 HashMap 과 PageInfo 둘 다 넘기면서 검색용 쿼리문을 실행해서 결과를 받아야함!!
 		ArrayList<Board> list = boardService.searchBoardList(map, pi);
 		
 		/*
-		for (Board b : list) {
+		for(Board b : list) {
+			
 			System.out.println(b);
 		}
 		*/
 		
+		// 위에서 구해진 list 와 pi 를 응답데이터로 넘기면서 결과 화면 포워딩
+		// > 기존의 게시글 목록 페이지 (boardListView.jsp) 를 재활용
+		
+		// 이 때, 검색 결과 창에 검색 조건, 검색어가 그대로 노출되었으면 좋겠음!!
+		// 검색 결과 창에서 페이징바를 클릭하면 다음 페이지로 넘어가면 검색이 풀리는 이슈도 있음!!
+		
+		// 해결방법)
+		// > 응답 데이터로 condition, keyword 를 다시 넘겨 주면 됨!!
+		
 		/*
 		mv.addObject("list", list);
 		mv.addObject("pi", pi);
-//		검색 결과도 일반 게시글 목록과 같은 화면으로 보여줄 예정이므로, 뷰 이름은 동일하게 boardListView로 지정
-//		문제는 검색 결과 창에 검색 조건, 검색어가 보여지지 않음
-//		추가로 paging 바 클릭하면, 검색 조건, 검색어가 사라지면서 일반 게시글 목록으로 이동하는 문제 발생
 		mv.addObject("condition", condition);
 		mv.addObject("keyword", keyword);
 		
 		mv.setViewName("board/boardListView");
 		*/
 		
-//		ModelAndView의 addObject() 메소드는 return 타입이 ModelAndView
-//		> 메소드 체이닝 방식으로 addObject() 메소드를 여러 번 호출해서 객체 담을 수 있음
+		// * ModelAndView 객체의 addObject 메소드는 return 타입이 ModelAndView 다!!
+		// > 즉, mv 객체 자기자신을 리턴한다.
 		mv.addObject("list", list)
 		  .addObject("pi", pi)
 		  .addObject("condition", condition)
 		  .addObject("keyword", keyword)
 		  .setViewName("board/boardListView");
-//		.setViewName()은 return 타입이 void이므로, 가장 마지막에만 작성 필요
+		// > 그래서 위와 같이 메소드 체이닝이 가능하다!! (호출 순서 주의)
 		
 		return mv;
 	}
@@ -168,22 +241,26 @@ public class BoardController {
 	
 	@PostMapping("insert")
 	public String insertBoard(Board b, MultipartFile upfile, HttpSession session, Model model) {
-//		System.out.println(b);
-//		카테고리번호, 제목, 내용은 Board 객체에 담겨서 전달됨
-//		사용자 id는 session에서 꺼낼 수도 있지만 hidden으로 넘기는게 편함
+		// > 스프링에서 요청 시 전달값 중 첨부파일을 받고싶다면
+		//   MultipartFile 타입의 매개변수 객체로 받아준다!!
+		//   (단, 입력 form 에서 enctype 속성을 작성해야함)
+		// > 이 때, 파일 업로드와 관련된 Spring 설정을 추가해야한다!! (application.properties 파일)
 		
-//		System.out.println(upfile);
-//		파일 업로드는 MultipartFile 객체로 전달됨 > jsp form 태그에서도 enctype="multipart/form-data" 작성 필요
-//		추가적으로 파일 업로드와 관련된 Spring 설정을 추가해야함(application.properties)
+		// 요청 시 전달값들을 VO 로 받기 (커맨드 객체 방식)
+		// System.out.println(b);
+		// > category, boardTitle, boardContent, boardWriter
 		
-//		첨부파일의 파일명 리턴 / 첨부파일이 없으면 빈 문자열 리턴
-//		System.out.println(upfile.getOriginalFilename());
-//		첨부파일의 크기 리턴
-//		System.out.println(upfile.getSize());
+		// System.out.println(upfile);
+		// > MultipartFile 객체의 getOriginalFilename() 이라는 메소드를 호출해보자!!
+		//   넘어온 첨부파일의 원래 파일 명을 문자열로 리턴해주는 메소드임
+		// System.out.println(upfile.getOriginalFilename());
+		// > "bono.jpg" / "kuromi.png" / "" (빈 문자열)
+		//   넘어온 첨부파일이 있다면 원본파일명, 넘어온 첨부파일이 없다면 빈 문자열이 리턴됨!!
 		
-//		upfile로 받은 첨부파일의 정보를 Attachment VO 객체로 가공
+		// upfile 로 넘겨받은 첨부파일의 정보를 Attachment VO 객체로 가공
 		Attachment at = null;
 		
+		// 요청 시 넘어온 첨부파일이 있는지 부터 검사
 		if(!upfile.getOriginalFilename().equals("")) {
 			// > 넘어온 첨부파일이 있을 경우
 			
@@ -196,8 +273,14 @@ public class BoardController {
 			at.setFilePath("resources/board_upfiles/");
 		}
 		
-//		System.out.println(b);
-//		System.out.println(at);
+		// System.out.println(b);
+		// System.out.println(at);
+		// > 넘어온 첨부파일이 없다면 at == null
+		//   넘어온 첨부파일이 있다면 at != null (originName, changeName, filePath)
+		
+		// 단, XSS 공격 방지 처리 하고 넘어가기!!
+		
+		// Service 로 b, at 모두 다 넘기면서 요청 후 결과 받기 (하나의 트랜잭션으로 묶기 위함)
 		int result = boardService.insertBoard(b, at);
 		
 		// 결과에 따른 응답페이지 처리
@@ -230,11 +313,11 @@ public class BoardController {
 			
 			return "common/errorPage";
 		}
+		
 	}
 	
 	@GetMapping("detail/{boardNo}")
-	public String selectBoard(@PathVariable("boardNo") int boardNo, Model model) {
-//		System.out.println("boardNo : " + boardNo);
+	public String selectBoard(@PathVariable int boardNo, Model model) {
 		
 		// System.out.println(boardNo);
 		
@@ -326,5 +409,110 @@ public class BoardController {
 		
 		return mv;
 	}
+
+	@PostMapping("update")
+	public String updateBoard(Board b, MultipartFile reUpfile,
+							  @RequestParam(defaultValue="0") int originalFileNo,
+							  String originalFileChangeName,
+							  HttpSession session,
+							  Model model) {
+		
+		// 요청 시 전달값들을 얻어내기 (커맨드 객체 방식)
+		// System.out.println(b);
+		// > boardNo, category, boardTitle, boardContent
+		//   (글번호와 변경할 내용들이 함께 넘어옴)
+		
+		// System.out.println(reUpfile.getOriginalFilename());
+		// > 변경할 첨부파일의 원본명
+		//   변경할 첨부파일이 있다면 제대로된 이름, 변경할 첨부파일이 없다면 "" (빈문자열)
+		
+		// System.out.println(originalFileNo);
+		// > 기존 첨부파일의 파일번호
+		//   단, 기존 파일이 없을 경우는 int 형 변수에 null 값이 못들어가므로
+		//   defaultValue 속성으로 기본값 0 을 지정했음!!
+		
+		// DAO 까지 전달할 값들을 담기 위해 우선 null 로 초기화
+		Attachment at = null;
+		
+		// 새로 넘어온 첨부파일이 있을 경우
+		// > ATTACHMENT 테이블에 INSERT 또는 UPDATE 를 해야함!!
+		if(!reUpfile.getOriginalFilename().equals("")) {
+			
+			// 새로 넘어온 첨부파일의 이름을 수정 후 서버로 업로드
+			// > 첨부파일에 대한 정보를 at 의 필드에 담기
+			
+			// 공통코드 FileRenamePolicy 클래스의 saveFile 메소드 호출
+			String changeName = FileRenamePolicy.saveFile(reUpfile, session, 
+														  "/resources/board_upfiles/");
+			
+			// insert 를 하든 update 를 하든 간에 originName, changeName 은 무조건 넘겨야함
+			at = new Attachment();
+			at.setOriginName(reUpfile.getOriginalFilename());
+			at.setChangeName(changeName);
+			
+			// 기존 첨부파일이 있었을 경우
+			// > 기존 첨부파일의 번호가 제대로 넘어온 경우 (originalFileNo 이 0 이 아닌 경우)
+			if(originalFileNo != 0) {
+				
+				// attachment 테이블에 update 문을 실행해야 하는 경우
+				// > fileNo 필드값을 추가적으로 셋팅해줘야함
+				at.setFileNo(originalFileNo);
+				
+				// 서버에 저장되어있던 기존의 첨부파일을 삭제시키기!! (용량만 차지)
+				// > 기존의 첨부파일의 수정파일명이 필요함!! (originalFileChangeName)
+				String savePath = session.getServletContext()
+										 .getRealPath("/resources/board_upfiles/");
+				new File(savePath + originalFileChangeName).delete();
+				
+			} else {
+				
+				// attachment 테이블에 insert 문을 실행해야 하는 경우
+				// > refNo, filePath 필드값을 추가적으로 셋팅해줘야함
+				at.setRefNo(b.getBoardNo());
+				at.setFilePath("resources/board_upfiles/");
+				
+			}
+		}
+		
+		// 이 시점 기준으로
+		// System.out.println(b);
+		// System.out.println(at);
+		// > 새로 넘어온 첨부파일이 없을 경우 : at == null
+		// > 기존 첨부파일 X, 새로 넘어온 첨부파일 O : at != null 
+		//   (refNo, originName, changeName, filePath)
+		// > 기존 첨부파일 O, 새로 넘어온 첨부파일 O : at != null
+		//   (originName, changeName, fileNo)
+		
+		// 단, 이 시점에서 마찬가지로 XSS 공격 방지 처리 하기!!
+		
+		// 이 경우를 모두 하나의 트랜잭션으로 묶어서 처리할 것!!
+		int result = boardService.updateBoard(b, at);
+		
+		// 최종적으로 넘어온 result 에 따라 응답페이지를 지정
+		if(result > 0) {
+			// > 게시글 수정 성공
+			
+			// 일회성 알림 문구를 담아서 해당 게시글의 상세보기 페이지로 url 재요청
+			session.setAttribute("alertMsg", "성공적으로 게시글이 수정되었습니다.");
+			
+			return "redirect:/board/detail/" + b.getBoardNo();
+			
+		} else {
+			// > 게시글 수정 실패
+		
+			// 에러 문구를 담아서 에러페이지로 포워딩
+			model.addAttribute("errorMsg", "게시글 수정에 실패했습니다.");
+			
+			return "common/errorPage";
+		}
+	}
 	
 }
+
+
+
+
+
+
+
+

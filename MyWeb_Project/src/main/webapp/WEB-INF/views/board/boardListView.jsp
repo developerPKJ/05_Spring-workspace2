@@ -152,159 +152,99 @@
 
 		<br><br>
 
-		<!-- 페이징바 -->
+		<!-- 페이징바 영역 -->
 		<div class="paging-area">
+		
 			<ul class="pagination justify-content-center">
-				<c:choose>
-					<c:when test="${ requestScope.pi.currentPage <= 10 }">
-						<li class="page-item disabled">
-							<a class="page-link" href="#">&lt;&lt;</a>
-						</li>
-					</c:when>
-					<c:otherwise>
-						<c:choose>
-							<c:when test="${ not empty requestScope.condition }">
-								<li class="page-item">
-									<a class="page-link" 
-									   href="/myweb/board/search?cpage=${ requestScope.pi.currentPage - 10 }&condition=${ requestScope.condition }&keyword=${ requestScope.keyword }">
-										&lt;&lt;
-									</a>
-								</li>
-							</c:when>
-							<c:otherwise>
-								<li class="page-item">
-									<a class="page-link" 
-									   href="/myweb/board/list?cpage=${ requestScope.pi.currentPage - 10 }">
-										&lt;&lt;
-									</a>
-								</li>
-							</c:otherwise>
-						</c:choose>
-					</c:otherwise>
-				</c:choose>
-				<c:choose>
-					<c:when test="${ requestScope.pi.currentPage eq 1 }">
-						<li class="page-item disabled">
-							<a class="page-link" href="#">Previous</a>
-						</li>
-					</c:when>
-					<c:otherwise>
-						<c:choose>
-							<c:when test="${ not empty requestScope.condition }">
-								<li class="page-item">
-									<a class="page-link" 
-									   href="/myweb/board/search?cpage=${ requestScope.pi.currentPage - 1 }&condition=${ requestScope.condition }&keyword=${ requestScope.keyword }">
-										Previous
-									</a>
-								</li>
-							</c:when>
-							<c:otherwise>
-								<li class="page-item">
-									<a class="page-link" 
-									   href="/myweb/board/list?cpage=${ requestScope.pi.currentPage - 1 }">
-										Previous
-									</a>
-								</li>
-							</c:otherwise>
-						</c:choose>
-					</c:otherwise>
-				</c:choose>
-				<c:forEach var="p" begin="${ requestScope.pi.startPage }" 
-								   end="${ requestScope.pi.endPage }">
-					<c:choose>
-						<c:when test="${ p == requestScope.pi.currentPage }">
-							<c:choose>
-								<c:when test="${ not empty requestScope.condition }">
-									<li class="page-item active">
-										<a class="page-link" href="/myweb/board/search?cpage=${p}&condition=${ requestScope.condition }&keyword=${ requestScope.keyword }">
-											${p}
-										</a>
-									</li>
-								</c:when>
-								<c:otherwise>
-									<li class="page-item active">
-										<a class="page-link" href="/myweb/board/list?cpage=${p}">
-											${p}
-										</a>
-									</li>
-								</c:otherwise>
-							</c:choose>
-						</c:when>
-						<c:otherwise>
-							<c:choose>
-								<c:when test="${ not empty requestScope.condition }">
-									<li class="page-item">
-										<a class="page-link" href="/myweb/board/search?cpage=${p}&condition=${ requestScope.condition }&keyword=${ requestScope.keyword }">
-											${p}
-										</a>
-									</li>
-								</c:when>
-								<c:otherwise>
-									<li class="page-item">
-										<a class="page-link" href="/myweb/board/list?cpage=${p}">
-											${p}
-										</a>
-									</li>
-								</c:otherwise>
-							</c:choose>
-						</c:otherwise>
-					</c:choose>
-				</c:forEach>
-				<c:choose>
-					<c:when test="${ requestScope.pi.currentPage eq requestScope.pi.maxPage }">
-						<li class="page-item disabled">
-							<a class="page-link" href="#">Next</a>
-						</li>
-					</c:when>
-					<c:otherwise>
-						<c:choose>
-							<c:when test="${ not empty requestScope.condition }">
-								<li class="page-item">
-									<a class="page-link" 
-									   href="/myweb/board/search?cpage=${ requestScope.pi.currentPage + 1 }&condition=${ requestScope.condition }&keyword=${ requestScope.keyword }">
-										Next
-									</a>
-								</li>
-							</c:when>
-							<c:otherwise>
-								<li class="page-item">
-									<a class="page-link" 
-									   href="/myweb/board/list?cpage=${ requestScope.pi.currentPage + 1 }">
-										Next
-									</a>
-								</li>
-							</c:otherwise>
-						</c:choose>
-					</c:otherwise>
-				</c:choose>
-				<c:choose>
-					<c:when test="${ requestScope.pi.startPage + 10 > requestScope.pi.maxPage }">
-						<li class="page-item disabled">
-							<a class="page-link" href="#">&gt;&gt;</a>
-						</li>
-					</c:when>
-					<c:otherwise>
-						<c:choose>
-							<c:when test="${ not empty requestScope.condition }">
-								<li class="page-item">
-									<a class="page-link" 
-									   href="/myweb/board/search?cpage=${ requestScope.pi.startPage + 10 }&condition=${ requestScope.condition }&keyword=${ requestScope.keyword }">
-										&gt;&gt;
-									</a>
-								</li>
-							</c:when>
-							<c:otherwise>
-								<li class="page-item">
-									<a class="page-link" 
-									   href="/myweb/board/list?cpage=${ requestScope.pi.startPage + 10 }">
-										&gt;&gt;
-									</a>
-								</li>
-							</c:otherwise>
-						</c:choose>
-					</c:otherwise>
-				</c:choose>
+			
+			  <c:choose>
+			  	<c:when test="${ requestScope.pi.currentPage eq 1 }">
+			  		<!-- 1 번 페이지일 경우 -->
+			  		<li class="page-item disabled">
+					  <a class="page-link">Previous</a>
+					</li>
+			  	</c:when>
+			  	<c:otherwise>
+			  	
+			  		<c:choose>
+			  			<c:when test="${ empty requestScope.condition }">
+			  				<!-- 일반 목록 조회일 경우 -->
+			  				<li class="page-item">
+							  <a class="page-link" href="/myweb/board/list?cpage=${ requestScope.pi.currentPage - 1 }">Previous</a>
+							</li>
+			  			</c:when>
+			  			<c:otherwise>
+			  				<!-- 검색 목록 조회일 경우 -->
+			  				<li class="page-item">
+							  <a class="page-link" href="/myweb/board/search?condition=${ requestScope.condition }&keyword=${ requestScope.keyword }&cpage=${ requestScope.pi.currentPage - 1 }">Previous</a>
+							</li>
+			  			</c:otherwise>
+			  			
+			  		</c:choose>
+			  	</c:otherwise>	
+			  </c:choose>	
+			  		
+			  <c:forEach var="p" begin="${ requestScope.pi.startPage }"
+			  					 end="${ requestScope.pi.endPage }" step="1">
+			  	
+			  	<c:choose>
+			  		<c:when test="${ requestScope.pi.currentPage eq p }">
+			  			<!-- 
+			  				현재 보고 있는 페이지라면 파란색으로 보이게끔 
+			  				이 페이지로는 다시 이동 못하게끔 href 속성을 지워줌!!
+			  			-->
+			  			<li class="page-item active"><a class="page-link">${ p }</a></li>
+			  		</c:when>
+			  		<c:otherwise>
+			  		
+			  			<c:choose>
+			  				<c:when test="${ empty requestScope.condition }">
+			  					<!-- 응답데이터로 condition 이 안넘어왔다면 (그냥 목록 조회일 경우) -->
+					  			<li class="page-item">
+					  				<a class="page-link" href="/myweb/board/list?cpage=${ p }">${ p }</a>
+					  			</li>
+			  				</c:when>
+			  				<c:otherwise>
+			  					<!-- 검색 결과를 보여줘야 할 경우 -->
+			  					<li class="page-item">
+					  				<a class="page-link" href="/myweb/board/search?condition=${ requestScope.condition }&keyword=${ requestScope.keyword }&cpage=${ p }">${ p }</a>
+					  			</li>
+			  				</c:otherwise>
+			  			</c:choose>
+			  		
+			  			
+			  		</c:otherwise>
+			  	</c:choose>				 
+			  						 
+			  </c:forEach>
+			  
+			  <c:choose>
+			  	<c:when test="${ requestScope.pi.currentPage eq requestScope.pi.maxPage }">
+				  <li class="page-item disabled">
+				  	<a class="page-link">Next</a>
+				  </li>
+			  	</c:when>
+			  	<c:otherwise>
+			  	
+			  		<c:choose>
+			  			<c:when test="${ empty requestScope.condition }">
+			  				<!-- 일반 목록 조회일 경우 -->
+			  				<li class="page-item">
+								<a class="page-link" href="/myweb/board/list?cpage=${ requestScope.pi.currentPage + 1 }">Next</a>
+							</li>
+			  			</c:when>
+			  			<c:otherwise>
+			  				<!-- 검색 결과 조회일 경우 -->
+			  				<li class="page-item">
+								<a class="page-link" href="/myweb/board/search?condition=${ requestScope.condition }&keyword=${ requestScope.keyword }&cpage=${ requestScope.pi.currentPage + 1 }">Next</a>
+							</li>
+			  			</c:otherwise>
+			  		</c:choose>
+			  	</c:otherwise>
+			  </c:choose>
+			  
 			</ul>
+			
 		</div>
 
 		<br><br>
