@@ -87,6 +87,13 @@
 		   AND STATUS = 'Y'
 	</update>
 
+	<!-- 아이디 중복확인용 쿼리문 -->
+	<select id="idCheck" parameterType="string" resultType="_int">
+		SELECT COUNT(*)
+		  FROM MEMBER
+		 WHERE USER_ID = #{checkId}
+	</select>
+
 </mapper>
 
 

@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.kh.myweb.member.model.service.MemberService;
@@ -553,7 +554,17 @@ public class MemberController {
 		
 	}
 	
-	
+	@ResponseBody
+	@GetMapping("idCheck")
+	public String ajaxIdCheck(String checkId) {
+		// System.out.println(checkId);
+
+		int count = memberService.idCheck(checkId);
+
+		// System.out.println(count);
+
+		return (count > 0) ? "NNNNN" : "NNNNY";
+	}
 	
 }
 

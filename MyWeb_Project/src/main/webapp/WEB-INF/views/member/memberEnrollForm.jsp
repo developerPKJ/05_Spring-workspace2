@@ -66,7 +66,8 @@
 					</td>
 					<td>
 						<button type="button"
-								class="btn btn-secondary btn-sm">중복확인</button>
+								class="btn btn-secondary btn-sm"
+								onclick="idCheck();">중복확인</button>
 						<!-- 중복확인은 나중에 AJAX 배우고 나서 구현!! -->
 					</td>
 				</tr>
@@ -118,7 +119,8 @@
 			<br><br>
 
 			<div align="center">
-				<button type="submit" class="btn btn-primary btn-sm">회원가입</button>
+				<button type="submit" class="btn btn-primary btn-sm" disabled>회원가입</button>
+				<!-- 중복확인 후 활성화 -->
 				<button type="reset" class="btn btn-secondary btn-sm">초기화</button>
 			</div>
 
@@ -129,6 +131,43 @@
 	</div>
 
 	<br><br>
+
+	<script>
+		function idCheck() {
+			// let userId = $('input[name=userId]').val();
+			// 이렇게 지정하면 include했던 manubar.jsp 내에 아이디 입력창도 같이 선택됨
+			let $userId = $("#enroll-form input[name=userId]");
+
+			// http://localhost:8006/myweb/member/idCheck?checkId=사용자가 입력한 아이디값(get)
+			$.ajax({
+				url : "/myweb/member/idCheck",
+				type : "get",
+				data : {checkId : $userId.val()},
+				success : function(result){
+					// console.log(result);
+					if (result == "NNNNY") {
+						if (confirm("사용 가능한 아이디입니다. 사용하시겠습니까?")) {
+							// 사용자가 확인 버튼을 눌렀을 때
+							// 아이디값 확정(수정 불가)
+							$userId.prop("readonly", true);
+							$("#enroll-form input[name=userId]").css("background-color", "lightgray");
+
+							// 회원가입 버튼 활성화
+							$("#enroll-form button[type=submit]").removeAttr("disabled");
+						} else {
+							// 사용자가 취소 버튼을 눌렀을 때
+							$userId.focus();
+						}
+					} else {
+						// 사용자가 입력한 아이디가 이미 존재할 때
+						alert("이미 사용중인 아이디입니다.")
+						$userId.focus();
+						// alertify는 모달창을 이용하다보니 확인버튼 누르다가 focus가 풀림
+					}
+				}
+			});
+		}
+	</script>
 
 </body>
 </html>
