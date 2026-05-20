@@ -74,10 +74,10 @@ public class MemberService {
 	}
 
 	public int idCheck(String checkId) {
+		
 		return memberDao.idCheck(sqlSession, checkId);
 	}
 	
-
 	
 }
 

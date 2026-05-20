@@ -113,34 +113,39 @@
 
 			<table class="table">
 				<thead>
-					<tr>
-						<th>댓글작성</th>
-						<td>
-							<textarea></textarea>
-						</td>
-						<td>
-							<button class="btn btn-secondary btn-sm">
-								댓글등록
-							</button>
-						</td>
-					</tr>
+					<c:choose>
+						<c:when test="${ not empty sessionScope.loginUser }">
+							<!-- case1. 로그인이 되어있을 경우 - 댓글 작성이 가능해짐 -->
+							<tr>
+								<th>댓글작성</th>
+								<td>
+									<textarea id="replyContent"></textarea>
+								</td>
+								<td>
+									<button class="btn btn-secondary btn-sm" 
+											onclick="insertReply();">
+										댓글등록
+									</button>
+								</td>
+							</tr>
+						</c:when>
+						<c:otherwise>
+							<!-- case2. 로그인이 되어있지 않은 경우 - 댓글 작성이 불가 -->
+							<tr>
+								<th>댓글작성</th>
+								<td>
+									<textarea readonly>로그인 후 이용 가능한 서비스입니다.</textarea>
+								</td>
+								<td>
+									<button class="btn btn-secondary btn-sm" disabled>
+										댓글등록
+									</button>
+								</td>
+							</tr>
+						</c:otherwise>
+					</c:choose>
 				</thead>
 				<tbody>
-					<tr>
-						<td>admin</td>
-						<td>댓글내용이 들어갈 자리~~</td>
-						<td>2026-05-14</td>
-					</tr>
-					<tr>
-						<td>admin</td>
-						<td>댓글내용이 들어갈 자리~~</td>
-						<td>2026-05-14</td>
-					</tr>
-					<tr>
-						<td>admin</td>
-						<td>댓글내용이 들어갈 자리~~</td>
-						<td>2026-05-14</td>
-					</tr>
 				</tbody>
 			</table>
 
@@ -151,6 +156,100 @@
 	</div>
 	
 	<br><br>
+	
+	<script>
+		$(function() {
+			
+			// 브라우저 상에 이 페이지가 다 로딩된 후에 단 한번 전체 댓글 목록을 조회해서 갖고올 것!!
+			selectReplyList();
+			
+			setInterval(selectReplyList, 1000);
+			// > 댓글을 비동기식으로 조회해주는 selectReplyList 함수를
+			//   일정 시간마다 주기적으로 실행시켜주기!! (실시간 효과)
+			
+		});
+	
+		// 댓글 목록 조회용 함수
+		function selectReplyList() {
+			
+			$.ajax({
+				url : "/myweb/board/rlist",
+				type : "get",
+				data : {
+					boardNo : ${ requestScope.b.boardNo }
+				}, 
+				success : function(result) {
+					
+					// console.log(result);
+					// [{}, {}, {}, ...]
+					
+					let resultStr = "";
+					
+					// for(let i = 0; i < result.length; i++) {
+					for(let i in result) {	
+						
+						// console.log(result[i]);
+						
+						resultStr += "<tr>"
+								   +		"<td>" + result[i].replyWriter + "</td>"
+								   +		"<td>" + result[i].replyContent + "</td>"
+								   +		"<td>" + result[i].createDate + "</td>"
+								   + "</tr>";
+					}
+					
+					$("#reply-area tbody").html(resultStr);
+					
+				},
+				error : function() {
+					
+					console.log("댓글 목록 조회용 ajax 통신 실패!");
+				}
+			});
+		}
+	
+		// 댓글 등록용 함수
+		function insertReply() {
+			
+			// 사용자가 입력한 댓글 내용을 변수에 담기
+			let replyContent = $("#replyContent").val();
+			
+			// 댓글 등록 요청 시
+			// http://localhost:8006/myweb/board/rinsert 로 POST 방식으로 요청
+			// 이 때, 참조게시글번호, 댓글내용만 넘길 것임!!
+			$.ajax({
+				url : "/myweb/board/rinsert",
+				type : "post",
+				data : {
+					refBoardNo : ${ requestScope.b.boardNo },
+					replyContent : replyContent
+				},
+				success : function(result) {
+					
+					if(result == "success") {
+						// > 성공
+						
+						// 갱신된 댓글 목록을 재조회
+						selectReplyList();
+						
+						// 댓글 작성용 textarea 초기화
+						$("#replyContent").val("");
+						
+					} else {
+						// > 실패
+						
+						alert("댓글 작성에 실패했습니다.");
+						
+						$("#replyContent").val("");
+					}
+				},
+				error : function() {
+					
+					console.log("댓글 작성용 ajax 통신 실패!");
+				}
+			});
+			
+		}
+	</script>
 
 </body>
 </html>

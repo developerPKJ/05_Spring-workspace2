@@ -5,6 +5,17 @@
 <mapper namespace="boardMapper">
 
 	<!-- 
+		REPLY 테이블로부터 조회된 result set 을
+		자바의 Reply VO 객체로 가공해주는 resultMap
+	-->
+	<resultMap id="replyResultSet" type="reply">
+		<id column="REPLY_NO" property="replyNo" />
+		<result column="REPLY_CONTENT" property="replyContent" />
+		<result column="USER_ID" property="replyWriter" />
+		<result column="CREATE_DATE" property="createDate" />
+	</resultMap>
+
+	<!-- 
 		CATEGORY 테이블로부터 조회된 result set 을
 		자바의 Category VO 객체로 가공해주는 resultMap
 	-->
@@ -312,6 +323,31 @@
 		   AND B.STATUS = 'Y'
 		   AND FILE_LEVEL = 1
 		 ORDER BY BOARD_NO DESC
+	</select>
+	
+	<!-- 댓글 작성용 쿼리문 -->
+	<insert id="insertReply" parameterType="reply">
+		INSERT INTO REPLY(REPLY_NO
+		                , REPLY_CONTENT
+		                , REF_BNO
+		                , REPLY_WRITER)
+		           VALUES(SEQ_RNO.NEXTVAL
+		                , #{replyContent}
+		                , #{refBoardNo}
+		                , #{replyWriter})
+	</insert>
+	
+	<!-- 댓글 목록 조회용 쿼리문 -->
+	<select id="selectReplyList" parameterType="_int" resultMap="replyResultSet">
+		SELECT REPLY_NO
+		     , REPLY_CONTENT
+		     , USER_ID
+		     , TO_CHAR(CREATE_DATE, 'YY/MM/DD HH:MI:SS') "CREATE_DATE"
+		  FROM REPLY R
+		  JOIN MEMBER ON (REPLY_WRITER = USER_NO)
+		 WHERE REF_BNO = #{boardNo}
+		   AND R.STATUS = 'Y'
+		 ORDER BY REPLY_NO DESC
 	</select>
 	
 </mapper>

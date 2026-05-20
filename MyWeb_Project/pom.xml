@@ -112,11 +112,15 @@
 			<artifactId>spring-boot-starter-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		
+		<!-- 
+			코드 자동완성을 위한 라이브러리 추가 
+			- Lombok	
+		-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
 		</dependency>
-		<!-- 코드 자동 완성을 위한 라이브러리 Lombok 추가 -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
@@ -181,4 +185,5 @@
 			</plugin>
 		</plugins>
 	</build>
+
 </project>

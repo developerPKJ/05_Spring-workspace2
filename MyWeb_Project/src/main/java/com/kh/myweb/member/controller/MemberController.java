@@ -369,6 +369,8 @@ public class MemberController {
 	@GetMapping("myPage")
 	public ModelAndView myPage(ModelAndView mv) {
 		
+		// System.out.println("여기는 마이페이지야");
+		
 		// myPage.jsp 에서 각 input 요소의 value 속성값으로
 		// 현재 로그인한 사용자의 각각의 알맞은 정보들이 출력되야함!!
 		// > 응답페이지에서 필요로 하는 데이터 == 현재 로그인한 회원의 데이터
@@ -554,17 +556,41 @@ public class MemberController {
 		
 	}
 	
+	// ----------------------
 	@ResponseBody
 	@GetMapping("idCheck")
 	public String ajaxIdCheck(String checkId) {
+		
 		// System.out.println(checkId);
-
+		
+		// Service 로 전달값을 넘기면서 요청 후 결과 받기
 		int count = memberService.idCheck(checkId);
-
+		
 		// System.out.println(count);
-
+		// > count 가 1 이면 사용 불가한 아이디 / 0 이면 사용 가능한 아이디
+		//   (이미 사용 중인 아이디)			
+		
+		// 처리 결과에 따라 응답데이터 넘기기
+		// > 이왕이면 네이버 회원가입의 응답값과 동일하게 넘겨보자!!
+		/*
+		if(count > 0) {
+			// > 존재하는 아이디가 이미 있을 경우 (사용 불가) 
+			//   "NNNNN" 을 넘겨보자!!
+			
+			return "NNNNN";
+			
+		} else {
+			// > 존재하는 아이디가 없을 경우 (사용 가능)
+			//   "NNNNY" 를 넘겨보자!!
+			
+			return "NNNNY";
+		}
+		*/
+		
 		return (count > 0) ? "NNNNN" : "NNNNY";
+		// > 삼항연산자도 이용 가능!!
 	}
+	
 	
 }
 

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import com.kh.myweb.board.model.vo.Attachment;
 import com.kh.myweb.board.model.vo.Board;
 import com.kh.myweb.board.model.vo.Category;
+import com.kh.myweb.board.model.vo.Reply;
 import com.kh.myweb.common.model.vo.PageInfo;
 
 @Repository
@@ -220,7 +221,23 @@ public class BoardDao {
 		// 드디어 쿼리문을 찾아서 실행할 경우에는 재활용이 됨!!
 		return (ArrayList)sqlSession.selectList("boardMapper.selectAttachment", boardNo);
 	}
+
+	public int insertReply(SqlSessionTemplate sqlSession, Reply r) {
+		
+		return sqlSession.insert("boardMapper.insertReply", r);
+	}
+
+	public ArrayList<Reply> selectReplyList(SqlSessionTemplate sqlSession, int boardNo) {
+		
+		return (ArrayList)sqlSession.selectList("boardMapper.selectReplyList", boardNo);
+		// > 사실 댓글 목록 조회도 페이징처리 해야함!!
+	}
 }
+
+
+
+
+
 
 
 

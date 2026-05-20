@@ -12,6 +12,7 @@ import com.kh.myweb.board.model.dao.BoardDao;
 import com.kh.myweb.board.model.vo.Attachment;
 import com.kh.myweb.board.model.vo.Board;
 import com.kh.myweb.board.model.vo.Category;
+import com.kh.myweb.board.model.vo.Reply;
 import com.kh.myweb.common.model.vo.PageInfo;
 
 @Service
@@ -157,6 +158,17 @@ public class BoardService {
 		
 		// DAO 단도 마찬가지로 리턴타입이 다르기 때문에 DAO 메소드 재활용은 불가!!
 		return boardDao.selectAttachmentList(sqlSession, boardNo);
+	}
+
+	@Transactional
+	public int insertReply(Reply r) {
+		
+		return boardDao.insertReply(sqlSession, r);
+	}
+
+	public ArrayList<Reply> selectReplyList(int boardNo) {
+		
+		return boardDao.selectReplyList(sqlSession, boardNo);
 	}
 	
 }

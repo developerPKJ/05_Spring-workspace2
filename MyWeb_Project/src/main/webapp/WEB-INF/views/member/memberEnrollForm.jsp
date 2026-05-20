@@ -65,9 +65,8 @@
 						<input type="text" name="userId" maxlength="12" required>
 					</td>
 					<td>
-						<button type="button"
-								class="btn btn-secondary btn-sm"
-								onclick="idCheck();">중복확인</button>
+						<button type="button" onclick="idCheck();"
+								class="btn btn-secondary btn-sm">중복확인</button>
 						<!-- 중복확인은 나중에 AJAX 배우고 나서 구현!! -->
 					</td>
 				</tr>
@@ -120,7 +119,7 @@
 
 			<div align="center">
 				<button type="submit" class="btn btn-primary btn-sm" disabled>회원가입</button>
-				<!-- 중복확인 후 활성화 -->
+				<!-- 아이디 중복확인이 정확히 들어가기 전에는 회원가입버튼을 클릭하지 못하게 막음 -->
 				<button type="reset" class="btn btn-secondary btn-sm">초기화</button>
 			</div>
 
@@ -131,43 +130,69 @@
 	</div>
 
 	<br><br>
-
+	
 	<script>
 		function idCheck() {
-			// let userId = $('input[name=userId]').val();
-			// 이렇게 지정하면 include했던 manubar.jsp 내에 아이디 입력창도 같이 선택됨
+			
+			// 아이디를 입력받는 input 요소 객체를 변수에 담기
 			let $userId = $("#enroll-form input[name=userId]");
-
-			// http://localhost:8006/myweb/member/idCheck?checkId=사용자가 입력한 아이디값(get)
+			// > $("input[name=userId]"); 이렇게 선택하면 상단에 include 된 menubar.jsp 의
+			//   로그인 폼 내의 아이디 입력창 또한 같이 선택되게 됨!!
+			// > 내가 원하는 요소만 정확하게 하나만 고르고 싶다면
+			//   확실하게 어디에 속해있는 요소인지 잘 구분해서 선택해야 한다!!
+			
+			// 아이디 중복 체크 요청 시
+			// http://localhost:8006/myweb/member/idCheck?checkId=xxx
+			// 로 비동기식 요청
+			
 			$.ajax({
 				url : "/myweb/member/idCheck",
 				type : "get",
-				data : {checkId : $userId.val()},
-				success : function(result){
+				data : { checkId : $userId.val() },
+				success : function(result) {
+					
 					// console.log(result);
-					if (result == "NNNNY") {
-						if (confirm("사용 가능한 아이디입니다. 사용하시겠습니까?")) {
-							// 사용자가 확인 버튼을 눌렀을 때
-							// 아이디값 확정(수정 불가)
+					
+					if(result == "NNNNN") {
+						// > 사용 불가한 아이디일 경우
+						
+						alert("이미 사용중이거나 탈퇴한 회원의 아이디입니다.");
+						
+						// 아이디 재입력 유도
+						$userId.focus();
+						
+					} else {
+						// > 사용 가능한 아이디일 경우
+						
+						if(confirm("사용 가능한 아이디입니다. 사용하시겠습니까?")){
+							// > 사용하겠다고 의사를 밝힌 경우 (확인 버튼 클릭 시)
+							
+							// 아이디값을 확정 (다시는 수정 못하게)
 							$userId.prop("readonly", true);
-							$("#enroll-form input[name=userId]").css("background-color", "lightgray");
-
+							
 							// 회원가입 버튼 활성화
 							$("#enroll-form button[type=submit]").removeAttr("disabled");
+							
 						} else {
-							// 사용자가 취소 버튼을 눌렀을 때
+							// > 사용하지 않겠다고 의사를 밝힌 경우 (취소 버튼 클릭 시)
+							
+							// 아이디 재입력 유도
 							$userId.focus();
 						}
-					} else {
-						// 사용자가 입력한 아이디가 이미 존재할 때
-						alert("이미 사용중인 아이디입니다.")
-						$userId.focus();
-						// alertify는 모달창을 이용하다보니 확인버튼 누르다가 focus가 풀림
 					}
+				},
+				error : function() {
+					
+					console.log("아이디 중복체크용 ajax 통신 실패!");
 				}
 			});
+			
 		}
 	</script>
 
 </body>
 </html>
+
+
+
+
