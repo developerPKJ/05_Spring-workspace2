@@ -131,7 +131,8 @@
 						<tr>
 							<th>아이디</th>
 							<td>
-								<input type="text" name="userId" required>
+								<input type="text" name="userId" required value="${ cookie.saveId.value }">
+								<!-- 6. 쿠키에 저장된 아이디가 있을 경우 value로 자동 입력 -->
 							</td>
 						</tr>
 						<tr>
@@ -139,6 +140,12 @@
 							<td>
 								<input type="password" name="userPwd" required>
 							</td>
+						</tr>
+						<tr align="right">
+							<th colspan="2">
+								<input type="checkbox" name="saveId" id="saveId" value="y">
+								<label for="saveId">아이디 저장</label>
+							</th>
 						</tr>
 						<tr align="center">
 							<th colspan="2">
@@ -210,6 +217,17 @@
 		<div class="menu"><a href="/myweb/thumbnail/list">PHOTO</a></div>
 
 	</div>
+
+	<script>
+		// 5. 쿠키 해제 시 체크박스도 해제하기
+		$(function() {
+			let saveId = "${ cookie.saveId.value }";
+			
+			if(saveId != "" && saveId != null) {
+				$("#saveId").prop("checked", true);
+			}
+		})
+	</script>
 
 </body>
 </html>

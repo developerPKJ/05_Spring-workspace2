@@ -13,6 +13,8 @@ import org.springframework.web.servlet.ModelAndView;
 import com.kh.myweb.member.model.service.MemberService;
 import com.kh.myweb.member.model.vo.Member;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 /*
@@ -75,7 +77,61 @@ public class MemberController {
 	
 	// @PostMapping("member/login")
 	@PostMapping("login")
-	public String loginMember(Member m, Model model, HttpSession session) {
+	public String loginMember(Member m, String saveId, Model model, 
+							  HttpSession session, HttpServletResponse response) {
+
+		// 아이디 저장 기능 추가
+		// 매개변수 String saveId 추가 (check 시 y / uncheck 시 null)
+		// System.out.println(saveId);
+
+		// 아이디 저장 기능 구현(y가 넘어올 시 쿠키로 아이디 저장, null 이 넘어올 시 쿠키 삭제)
+		if((saveId != null) && saveId.equals("y")) {
+			/*
+				쿠키 Cookie
+				- 웹 사이트를 구동시키는 서버에서 만들어서 사용자의 컴퓨터 브라우저에 저장하는 데이터
+				- 쿠키 만드는 주체 : 서버(Controller 단)
+				- 쿠키 저장하는 주체 : 브라우저
+
+				- 개발자 도구 어플리케이션 탭에서 조회, 추가, 수정, 삭제가 가능
+				- 보안과 관련 없는 기능 구현할 때만 사용
+				> 로그인 유지는 (핸드폰 어플리케이션 권장, 웹에서는 권장하지 않음)
+
+				- key + value 쌍으로 저장(둘 다 문자열 형태)
+				- 만료시간 설정 가능
+				
+				사용 방법
+				1. 쿠키 생성 (서버 단에서 코드로 작성)
+				Cookie cookie = new Cookie("key", "value");
+				> 당연히 key 중복 불가
+
+				2. 쿠키 만료시간 설정 (옵션)
+				cookie.setMaxAge(60 * 60 * 24 * 7); // 7일 동안 유지(초단위 설정)
+
+				3. 해당 쿠키를 어느 웹사이트에서만 이용할건지 설정 (필수)
+				cookie.setPath("/contextPath/");
+			*/
+			// 쿠키 생성
+			Cookie cookie = new Cookie("saveId", m.getUserId());
+				// Cookie는 jakarta.servlet.http.Cookie 클래스
+			cookie.setMaxAge(1 * 24 * 60 * 60); // 1일 동안 유지
+			cookie.setPath("/myweb/");
+
+			/*
+				4. 쿠키 브라우저에 저장
+				response.addCookie(cookie);
+			*/
+				response.addCookie(cookie);
+					// > jakarta.servlet.http.HttpServletResponse 클래스 이용
+					
+		} else {
+			// 아이디 저장 체크 해제 시 쿠키 삭제
+			// > 기존 cookie 덮어씌우기
+			Cookie cookie = new Cookie("saveId", null);
+			cookie.setMaxAge(0); // 0초로 설정
+			cookie.setPath("/myweb/");
+			response.addCookie(cookie);
+		}
+
 		
 		// System.out.println("잘 호출되나?");
 		
