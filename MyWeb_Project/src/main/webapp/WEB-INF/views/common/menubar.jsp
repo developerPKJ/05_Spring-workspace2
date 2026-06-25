@@ -132,7 +132,10 @@
 							<th>아이디</th>
 							<td>
 								<input type="text" name="userId" required value="${ cookie.saveId.value }">
-								<!-- 6. 쿠키에 저장된 아이디가 있을 경우 value로 자동 입력 -->
+								<!-- 
+									4. 쿠키에 저장된 아이디값을 로그인 화면에 출력까지 해주기 
+									> 쿠키에 저장된 밸류값을 얻어오고 싶다면 EL 구문 형식을 통해 cookie.키값.value 를 적는다.	
+								-->
 							</td>
 						</tr>
 						<tr>
@@ -141,9 +144,11 @@
 								<input type="password" name="userPwd" required>
 							</td>
 						</tr>
+						<!-- 아이디 저장 -->
 						<tr align="right">
 							<th colspan="2">
-								<input type="checkbox" name="saveId" id="saveId" value="y">
+								<!-- 1. 로그인 요청 시 아이디 저장 여부를 서버로 같이 넘기기 -->
+								<input type="checkbox" id="saveId" name="saveId" value="y">
 								<label for="saveId">아이디 저장</label>
 							</th>
 						</tr>
@@ -217,16 +222,25 @@
 		<div class="menu"><a href="/myweb/thumbnail/list">PHOTO</a></div>
 
 	</div>
-
+	
 	<script>
-		// 5. 쿠키 해제 시 체크박스도 해제하기
 		$(function() {
-			let saveId = "${ cookie.saveId.value }";
 			
-			if(saveId != "" && saveId != null) {
+			// 3. 쿠키가 있다면 요소에 아이디 저장을 표현해주기
+			
+			// 쿠키값들 중에서 saveId 에 대한 밸류값을 불러오기
+			// > 쿠키에 담긴 값 또한 EL 구문 형식으로 불러올 수 있다!!
+			let saveId = "${ cookie.saveId.value }"; 
+			
+			// console.log(saveId); // "admin" / ""
+			
+			if(saveId != "") {
+				// > 쿠키에 저장된 아이디가 있다면
+				
 				$("#saveId").prop("checked", true);
 			}
-		})
+			
+		});
 	</script>
 
 </body>
