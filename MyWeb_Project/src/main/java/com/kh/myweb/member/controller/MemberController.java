@@ -1,9 +1,12 @@
 package com.kh.myweb.member.controller;
 
+import java.util.ArrayList;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -662,6 +665,47 @@ public class MemberController {
 		// > 삼항연산자도 이용 가능!!
 	}
 	
+	// ----------------------
+	
+	// 리액트 연동
+	// 리액트에서 회원 전체 조회 요청 시 실행할 메소드
+	@ResponseBody
+	@CrossOrigin(origins = "http://localhost:5173")
+	@GetMapping("list")
+	public ArrayList<Member> selectMemberList() {
+//		System.out.println("회원 전체 조회 요청 들어옴!!");
+		
+		// Service 로 요청 후 결과 받기
+		ArrayList<Member> list = memberService.selectMemberList();
+		
+//		for(Member m : list) {
+//			System.out.println(m);
+//		}
+		
+		// 응답데이터를 리액트로 보내기 - JSON형식으로 변환 필요(Jackson 라이브러리 이용 자동 변환 : @ResponseBody)
+		return list;
+		/*
+		 * * Spring의 Controller에서
+		 * 	 @ResponseBody 어노테이션과 Jackson 라이브러리를 이용해 응답데이터를 JSON 형식으로 변환해서 리액트로 보내줬음에도
+		 *   리액트에서 respons 매개변수로 받지 못하고 있음
+		 *   
+		 *   - 기존
+		 *   localhost:8006/myweb/~~~ <------> localhost:8006/myweb/~~~ 끼리 통신
+		 *   
+		 *   - 현재
+		 *   localhost:5173 <------> localhost:8006/myweb/~~~ 끼리 통신
+		 *   
+		 *   Cross Origin Resource Sharing (CORS Policy) 문제 발생
+		 *   - 웹 브라우저에서 Ajax 요청 등을 통해 다른 서버의 도메인 주소로 URL 요청을 할 때,
+		 *     현재 브라우저 주소창의 URL 주소와 실제 Ajax를 통해 요청 받는 서버의 URL 주소가
+		 *     일치하지 않을 경우 보안상 문제로 인해 브라우저에서 요청을 차단하는 정책
+		 *   - 응답데이터의 위험성 때문에 기본적으로 차단
+		 *   
+		 *   해결방법
+		 *   - Spring(서버)측에서 @CrossOrigin 어노테이션을 이용해 해당 컨트롤러에서 다른 서버의 도메인 주소로 URL 요청을 허용하도록 설정
+		 *   : Controller 메소드 상단에 @CrossOrigin(origins = "브라우저 주소") 어노테이션을 붙여주면 됨
+		 */
+	}
 	
 }
 

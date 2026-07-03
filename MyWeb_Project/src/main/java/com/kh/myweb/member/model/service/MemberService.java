@@ -1,5 +1,7 @@
 package com.kh.myweb.member.model.service;
 
+import java.util.ArrayList;
+
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -76,6 +78,11 @@ public class MemberService {
 	public int idCheck(String checkId) {
 		
 		return memberDao.idCheck(sqlSession, checkId);
+	}
+	
+	public ArrayList<Member> selectMemberList() {
+		
+		return memberDao.selectMemberList(sqlSession);
 	}
 	
 	

@@ -93,6 +93,13 @@
 		  FROM MEMBER
 		 WHERE USER_ID = #{checkId}
 	</select>
+	
+	<!-- 회원 전체 조회용 쿼리문(리액트 연동) -->
+	<select id="selectMemberList" resultMap="memberResultSet">
+        SELECT *
+          FROM MEMBER
+         ORDER BY USER_NO ASC
+	</select>
 
 </mapper>
 
